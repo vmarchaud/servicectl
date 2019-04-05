@@ -1,0 +1,11 @@
+{
+  "name": "pm3",
+  "version": "0.0.0",
+  "description": "better pm2",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "await-of": "^1.1.2",
+    "dbus-next": "^0.5.1"
+  }
+}
