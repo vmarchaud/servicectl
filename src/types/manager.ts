@@ -1,14 +1,15 @@
 
 import { SystemdUnit } from './unit'
 import {SystemdJob} from './job';
+import {SystemdService} from './service';
 
 export interface SystemdManagerRaw {
 
-  GetUnit (name: string): Promise<{}>
-  GetUnitByPID (pid: number): Promise<{}>
-  LoadUnit (name: string): Promise<{}>
-  StartUnit (name: string, mode: string): Promise<{}>
-  StartUnitReplace (oldUnit: string, newUnit: string, mode: string): Promise<{}>
+  GetUnit (name: string): Promise<string>
+  GetUnitByPID (pid: number): Promise<string>
+  LoadUnit (name: string): Promise<string>
+  StartUnit (name: string, mode: string): Promise<string>
+  StartUnitReplace (oldUnit: string, newUnit: string, mode: string): Promise<string>
   StopUnit (name: string, mode: string): Promise<string>
   ReloadUnit (name: string, mode: string): Promise<string>
   RestartUnit (name: string, mode: string): Promise<string>
@@ -18,8 +19,8 @@ export interface SystemdManagerRaw {
   KillUnit (name: string, who: string, signal: number): void
   ResetFailedUnit (name: string)
 
-  GetJob (id: number): Promise<{}>
-  CancelJob (id: number): Promise<{}>
+  GetJob (id: number): Promise<string>
+  CancelJob (id: number): Promise<string>
   ClearJobs (): void
   ResetFailed (): void
 
@@ -43,8 +44,9 @@ export enum StartMode {
 
 export interface SystemdManager {
 
-  /* GetUnit (name: string): SystemdUnit
-  GetUnitByPID (pid: number): SystemdUnit
+  GetUnit (name: string): Promise<SystemdUnit>
+  GetService (name: string): Promise<SystemdService>
+  /*GetUnitByPID (pid: number): SystemdUnit
   LoadUnit (name: string): SystemdUnit
   StartUnit (name: string, mode: StartMode): SystemdJob
   StartUnitReplace (oldUnit: string, newUnit: string, mode: StartMode): SystemdJob

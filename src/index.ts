@@ -4,8 +4,8 @@ import {StartMode} from './types/manager';
 
 const run = async () => {
   const manager = await SystemdManagerImpl.init()
-  const toto = await manager.ListUnits()
-  await manager.ReloadUnit('docker.service', StartMode.REPLACE)
+  const unit = await manager.GetService('docker.service')
+  console.log(await unit.GetProcesses())
   manager.destroy()
 }
 

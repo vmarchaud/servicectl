@@ -2,7 +2,7 @@
 import { SystemdJob, SystemdJobState } from '../types/job'
 import { SystemdUnit } from '../types/unit'
 import { fetchUnit } from './unit'
-import * as dbus from 'dbus-next'
+import { getSystemBus } from '../utils/bus'
 import of from 'await-of'
 
 export class SystemdJobImpl implements SystemdJob {
@@ -42,10 +42,6 @@ export class SystemdJobImpl implements SystemdJob {
   Cancel () {
     throw new Error('not implemented')
   }
-
-  async populateUnit (): Promise<SystemdUnit> {
-    return fetchUnit(this._unit)
-  }
 }
 
 /**
@@ -63,7 +59,7 @@ export const parseRawJob = (raw: Array<any>): SystemdJob => {
 }
 
 export const fetchJob = async (path: string): Promise<SystemdJob> => {
-  const bus = dbus.systemBus()
+  const bus = getSystemBus()
   let [ unit, err ] = await of(bus.getProxyObject('org.freedesktop.systemd1', path))
   console.log(err, unit)
   bus.disconnect()

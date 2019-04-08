@@ -5,7 +5,11 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "async": "3.0.1-0",
     "await-of": "^1.1.2",
     "dbus-next": "^0.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^11.13.0"
   }
 }
