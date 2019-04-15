@@ -1,12 +1,7 @@
 
-import { SystemdManagerImpl } from './models/manager'
-import {StartMode} from './types/manager';
+export { run } from '@oclif/command'
 
-const run = async () => {
-  const manager = await SystemdManagerImpl.init()
-  const unit = await manager.GetService('docker.service')
-  console.log(await unit.GetProcesses())
-  manager.destroy()
-}
+export * from './api'
 
-run()
+export * from './types/service'
+export * from './types/serviceBackend'

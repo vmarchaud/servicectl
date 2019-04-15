@@ -1,9 +1,6 @@
 
 import { SystemdJob, SystemdJobState } from '../types/job'
-import { SystemdUnit } from '../types/unit'
-import { fetchUnit } from './unit'
 import { getSystemBus } from '../utils/bus'
-import of from 'await-of'
 
 export class SystemdJobImpl implements SystemdJob {
 
@@ -56,13 +53,4 @@ export const parseRawJob = (raw: Array<any>): SystemdJob => {
   const jobPath = raw[4] as string
   const unitPath = raw[5] as string
   return new SystemdJobImpl(id, name, unitPath, type, state, jobPath)
-}
-
-export const fetchJob = async (path: string): Promise<SystemdJob> => {
-  const bus = getSystemBus()
-  let [ unit, err ] = await of(bus.getProxyObject('org.freedesktop.systemd1', path))
-  console.log(err, unit)
-  bus.disconnect()
-  if (err) return null
-  return parseRawJob(unit)
 }

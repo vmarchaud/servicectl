@@ -1,15 +1,49 @@
 {
-  "name": "pm3",
+  "name": "pm1",
   "version": "0.0.0",
   "description": "better pm2",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@oclif/command": "^1.5.13",
+    "@oclif/config": "^1.12.12",
+    "@oclif/plugin-help": "^2.1.6",
     "async": "3.0.1-0",
-    "await-of": "^1.1.2",
-    "dbus-next": "^0.5.1"
+    "dbus-next": "^0.5.1",
+    "v8-compile-cache": "^2.0.2"
   },
   "devDependencies": {
-    "@types/node": "^11.13.0"
+    "@types/node": "^11.13.0",
+    "@oclif/dev-cli": "^1.22.0",
+    "ts-node": "^8.1.0",
+    "tslint": "^5.15.0",
+    "tslint-config-standard": "^8.0.1",
+    "typescript": "^3.4.3"
+  },
+  "engines": {
+    "node": ">=10.4.0"
+  },
+  "bin": {
+    "pm1": "./bin/run"
+  },
+  "oclif": {
+    "commands": "./build/cli",
+    "bin": "bin",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "files": [
+    "/bin",
+    "/build",
+    "/oclif.manifest.json"
+  ],
+  "scripts": {
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "tslint -p test -t stylish",
+    "prepack": "rm -rf build && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif-dev readme && git add README.md",
+    "lint": "tslint --project . src/**/*.ts"
   }
 }

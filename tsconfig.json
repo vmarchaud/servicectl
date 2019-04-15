@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "outDir": "build",
+    "rootDirs": ["src", "bin"],
+    "module": "commonjs",
+    "declaration": true,
+    "inlineSourceMap": true,
+    "strictNullChecks": true,
+    "traceResolution": false,
+    "resolveJsonModule": true,
+    "removeComments": true
+  },
+  "compileOnSave": false,
+  "include": [
+    "src/",
+    "bin/"
+  ]
+}

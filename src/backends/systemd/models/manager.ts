@@ -1,7 +1,7 @@
 
 import { SystemdManager, SystemdManagerRaw, StartMode } from '../types/manager'
 import { getSystemBus } from '../utils/bus'
-import {parseRawJob, fetchJob} from './job'
+import {parseRawJob } from './job'
 import { fetchUnit } from './unit'
 import { SystemdService } from '../types/service'
 import {SystemdInterfacesType, hasInterface} from '../types/unit';
