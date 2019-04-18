@@ -1,7 +1,6 @@
-import { ServiceBackend } from "./types/serviceBackend"
+import { ServiceBackend } from './types/serviceBackend'
 import { platform } from 'os'
-import { SystemdBackend } from "./models/systemd/systemdBackend"
-
+import { SystemdBackend } from './models/systemd/systemdBackend'
 
 export class ServiceAPI {
 
@@ -25,6 +24,9 @@ export class ServiceAPI {
     return new ServiceAPI(backend)
   }
 
+  async destroy () {
+    await this.backend.destroy()
+  }
 
   async restart (name: string) {
     const service = await this.backend.restart(name)

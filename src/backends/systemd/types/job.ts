@@ -13,7 +13,7 @@ export interface SystemdJob {
   /**
    * Cancel() cancels the job. Note that this will remove a job from the queue
    * if it is not yet executed but generally will not cause a job that is
-   * already in the process of being executed to be aborted. 
+   * already in the process of being executed to be aborted.
    */
   Cancel (): void
 
@@ -34,7 +34,7 @@ export interface SystemdJob {
    */
   readonly JobType: SystemdJobState
   /**
-   * State refers to the job's state and is one of waiting and running. 
+   * State refers to the job's state and is one of waiting and running.
    * The former indicates that a job is currently queued but has not begun to execute yet,
    * the latter indicates that a job is currently being executed.
    */

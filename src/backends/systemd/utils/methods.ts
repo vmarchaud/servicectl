@@ -8,13 +8,13 @@ type Method = {
 }
 
 export const fetchMethods = async (object: any): Promise<PropertyArray> => {
-  const nestedMethods: PropertyArray[] = await map(Object.entries(object.interfaces), async([name, content], nextInterface: Function) => {
-    const methods = await map(content['$methods'], async (method: Method, nextMethod: Function) => {
+  const nestedMethods: PropertyArray[] = await map(Object.entries(object.interfaces), async ([name, content]) => {
+    const methods = await map(content['$methods'], async (method: Method) => {
       const obj = {}
       obj[method.name] = content[method.name]
-      return nextMethod(null, obj)
+      return obj
     })
-    return nextInterface(null, methods)
+    return methods
   })
   return nestedMethods.reduce((allMethods: PropertyArray, methods: PropertyArray) => {
     return allMethods.concat(methods)

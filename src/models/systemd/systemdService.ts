@@ -1,7 +1,7 @@
 
-import { Service, ServiceLimit, ServiceUsage, ServiceProcesses }  from '../../types/service'
-import {SystemdService} from '../../backends/systemd/types/service';
-import {StartMode} from '../../backends/systemd/types/manager';
+import { Service, ServiceLimit, ServiceUsage, ServiceProcesses } from '../../types/service'
+import { SystemdService } from '../../backends/systemd/types/service'
+import { StartMode } from '../../backends/systemd/types/manager'
 
 export class SimpleSystemdService implements Service {
 
@@ -15,7 +15,7 @@ export class SimpleSystemdService implements Service {
     await this._backendService.Start(StartMode.REPLACE)
     return this
   }
-  
+
   async stop (): Promise<ThisType<Service>> {
     await this._backendService.Stop(StartMode.REPLACE)
     return this
@@ -32,15 +32,15 @@ export class SimpleSystemdService implements Service {
   }
 
   async logs (limit: number, offet: number): Promise<string[]> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.')
   }
 
   async usage (): Promise<ServiceUsage> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.')
   }
 
   async limit (): Promise<ServiceLimit> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.')
   }
 
   async processes (): Promise<ServiceProcesses[]> {
@@ -72,5 +72,4 @@ export class SimpleSystemdService implements Service {
   static async fromSystemd (service: SystemdService) {
     return new SimpleSystemdService(service)
   }
-
 }

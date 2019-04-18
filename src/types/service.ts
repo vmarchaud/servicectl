@@ -21,7 +21,7 @@ export interface Service {
   start (): Promise<ThisType<Service>>
   stop (): Promise<ThisType<Service>>
   restart (): Promise<ThisType<Service>>
-  kill (string: number): Promise<ThisType<Service>>
+  kill (code: number): Promise<ThisType<Service>>
 
   logs (limit: number, offet: number): Promise<string[]>
 

@@ -1,7 +1,7 @@
 
 import { SystemdUnit } from './unit'
-import {SystemdJob} from './job';
-import {SystemdService} from './service';
+import { SystemdJob } from './job'
+import { SystemdService } from './service'
 
 export interface SystemdManagerRaw {
 
@@ -63,7 +63,7 @@ export interface SystemdManager {
   CancelJob (id: number): SystemdJob
   ClearJobs (): void
   ResetFailed (): void*/
- 
+
   ListUnits (): Promise<Array<SystemdUnit>>
   ListJobs (): Promise<Array<SystemdJob>>
 }

@@ -1,10 +1,10 @@
 
 import { SystemdManager, SystemdManagerRaw, StartMode } from '../types/manager'
 import { getSystemBus } from '../utils/bus'
-import {parseRawJob } from './job'
+import { parseRawJob } from './job'
 import { fetchUnit } from './unit'
 import { SystemdService } from '../types/service'
-import {SystemdInterfacesType, hasInterface} from '../types/unit';
+import { SystemdInterfacesType, hasInterface } from '../types/unit'
 
 export class SystemdManagerImpl implements SystemdManager {
 

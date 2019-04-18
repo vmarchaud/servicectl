@@ -1,18 +1,18 @@
-import { SystemdUnit } from "./unit"
-export interface SystemdService extends SystemdUnit {
+import { SystemdUnit } from './unit'
 
+export interface SystemdService extends SystemdUnit {
 
   readonly Type: string
   readonly PIDFile: string
   readonly NotifyAccess: string
   readonly RestartUSec: bigint
   readonly TimeoutUSec: bigint
-  readonly WatchdogUSec : bigint
+  readonly WatchdogUSec: bigint
   readonly WatchdogTimestamp: bigint
   readonly WatchdogTimestampMonotonic: bigint
   readonly StartLimitInterval: bigint
   readonly StartLimitBurst: number
-  readonly StartLimitAction: string  
+  readonly StartLimitAction: string
   readonly Slice: string
   readonly ControlGroup: string
   readonly ExecStartPre: Array<[string, string[], boolean, bigint, bigint, number, number]>
@@ -66,8 +66,8 @@ export interface SystemdService extends SystemdUnit {
   readonly CapabilityBoundingSet: bigint
   readonly User: string
   readonly Group: string
-  readonly SupplementaryGroups: string[];
-  readonly TCPWrapName: string;
+  readonly SupplementaryGroups: string[]
+  readonly TCPWrapName: string
   readonly PAMName: string
   readonly ReadWriteDirectories: string[]
   readonly ReadOnlyDirectories: string[]
@@ -111,6 +111,6 @@ export interface SystemdService extends SystemdUnit {
   readonly StatusText: string
   readonly Result: string
 
-  AttachProcesses(one: string, two: number[])
-  GetProcesses(): Array<[string, number, string]>
+  AttachProcesses (one: string, two: number[])
+  GetProcesses (): Array<[string, number, string]>
 }

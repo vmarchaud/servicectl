@@ -1,5 +1,5 @@
 
-import { Service } from "./service"
+import { Service } from './service'
 
 export type BackendConfig = {
 
@@ -7,7 +7,8 @@ export type BackendConfig = {
 
 export interface ServiceBackend {
 
-  init(config: BackendConfig): Promise<ThisType<ServiceBackend>>
+  init (config: BackendConfig): Promise<ThisType<ServiceBackend>>
+  destroy (): Promise<void>
 
   create (): Promise<Service>
   start (name: string): Promise<Service>

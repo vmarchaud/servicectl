@@ -2,7 +2,7 @@
 import { ServiceBackend, BackendConfig } from '../../types/serviceBackend'
 import { Service } from '../../types/service'
 import { SystemdManagerImpl } from '../../backends/systemd/models/manager'
-import {SimpleSystemdService} from './systemdService';
+import { SimpleSystemdService } from './systemdService'
 
 export class SystemdBackend implements ServiceBackend {
 
@@ -13,8 +13,12 @@ export class SystemdBackend implements ServiceBackend {
     return this
   }
 
+  async destroy () {
+    await this.backend.destroy()
+  }
+
   async create (): Promise<Service> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.')
   }
 
   async start (name: string): Promise<Service> {
