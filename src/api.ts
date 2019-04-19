@@ -32,4 +32,9 @@ export class ServiceAPI {
     const service = await this.backend.restart(name)
     console.log(`Restarted ${service.name}, pid: ${service.pid}`)
   }
+
+  async status () {
+    const services = await this.backend.list()
+    console.log(services.map(service => service.name))
+  }
 }

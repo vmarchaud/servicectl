@@ -3,6 +3,7 @@ import { ServiceBackend, BackendConfig } from '../../types/serviceBackend'
 import { Service } from '../../types/service'
 import { SystemdManagerImpl } from '../../backends/systemd/models/manager'
 import { SimpleSystemdService } from './systemdService'
+import {hasInterface, SystemdInterfacesType, SystemdService} from '../../backends/systemd/index';
 
 export class SystemdBackend implements ServiceBackend {
 
@@ -54,5 +55,11 @@ export class SystemdBackend implements ServiceBackend {
     const service = await SimpleSystemdService.fromSystemd(await this.backend.GetService(name))
     service.stop()
     return service
+  }
+
+  async list (): Promise<Service[]> {
+    const units = await this.backend.ListServices()
+    console.log('done')
+    return []
   }
 }

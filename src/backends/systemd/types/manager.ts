@@ -64,6 +64,6 @@ export interface SystemdManager {
   ClearJobs (): void
   ResetFailed (): void*/
 
-  ListUnits (): Promise<Array<SystemdUnit>>
+  ListServices (): Promise<Array<SystemdService>>
   ListJobs (): Promise<Array<SystemdJob>>
 }

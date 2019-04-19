@@ -22,7 +22,7 @@ export class SimpleSystemdService implements Service {
   }
 
   async restart (): Promise<ThisType<Service>> {
-    await this._backendService.Restart(StartMode.REPLACE)
+    await this._backendService.TryRestart(StartMode.FAIL)
     return this
   }
 

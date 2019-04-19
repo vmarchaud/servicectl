@@ -4,19 +4,12 @@ import { fetchProperties } from '../utils/properties'
 import { fetchMethods } from '../utils/methods'
 import { SystemdUnit } from '../types/unit'
 
-/*export const parseRawUnit = (raw: any[]): SystemdUnit => {
+export const parseRawUnit = async (raw: any[]): Promise<SystemdUnit> => {
   const name = raw[0] as string
-  const description = raw[1] as string
-  const loadState = raw[2] as string
-  const activeState = raw[3] as string
-  const subState = raw[4] as string
-  const following = raw[5] as string
   const path = raw[6] as string
-  const jobNumber = raw[7] as number
-  const jobPath = raw[9] as string
-  return new SystemdUnitImpl(name, description, following, activeState,
-      loadState, subState, path, jobNumber, jobPath)
-}*/
+  const unit = await fetchUnit(path)
+  return unit
+}
 
 export const fetchUnit = async (path: string): Promise<SystemdUnit> => {
   const bus = getSystemBus()
@@ -26,7 +19,7 @@ export const fetchUnit = async (path: string): Promise<SystemdUnit> => {
   const unit = Object.assign(
     {},
     { interfaces: unitObject.interfaces },
-    ...methods,
-    ...props) as SystemdUnit
+    ...props,
+    ...methods) as SystemdUnit
   return unit
 }

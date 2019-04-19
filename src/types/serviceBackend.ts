@@ -16,4 +16,5 @@ export interface ServiceBackend {
   stop (name: string): Promise<Service>
 
   get (name: string): Promise<Service>
+  list (): Promise<Service[]>
 }
