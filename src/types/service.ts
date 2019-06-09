@@ -1,27 +1,33 @@
 
-export interface ServiceUsage {
+export type ServiceUsage = {
   cpu: number,
   mem: number,
   tasks: number
 }
 
-export interface ServiceLimit {
+export type ServiceLimit = {
   cpu: number,
   mem: number,
   tasks: number
 }
 
-export interface ServiceProcesses {
+export type ServiceProcesses = {
   argv: string[],
   pid: number
 }
 
+export enum ServiceMode {
+  EXEC = 'exec',
+  FORK = 'fork',
+  CLUSTER = 'cluster'
+}
+
 export interface Service {
 
-  start (): Promise<ThisType<Service>>
-  stop (): Promise<ThisType<Service>>
-  restart (): Promise<ThisType<Service>>
-  kill (code: number): Promise<ThisType<Service>>
+  start (): Promise<Service>
+  stop (): Promise<Service>
+  restart (): Promise<Service>
+  kill (code: number): Promise<Service>
 
   logs (limit: number, offet: number): Promise<string[]>
 
@@ -34,4 +40,5 @@ export interface Service {
   active: boolean
   description: string
   name: string
+  mode: ServiceMode
 }

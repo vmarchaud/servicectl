@@ -1,18 +1,23 @@
 
 import { map } from 'async'
 
-export const fetchProperties = async (object: any): Promise<Array<{ [key: string]: string }>> => {
-  const getProp = object.getInterface('org.freedesktop.DBus.Properties').Get
-  const nestedProps = await map(Object.entries(object.interfaces), ([name, content], nextInterface) => {
-    map(content['$properties'], (prop, nextProp) => {
-      getProp(name, prop.name).then(variant => {
-        const obj = {}
-        obj[prop.name] = variant.value
-        return nextProp(null, obj)
-      })
-    }, nextInterface)
+export const fetchAllProperties = async (object: any): Promise<{ [key: string]: any }> => {
+  const interfaces = Object.keys(object.interfaces)
+  const allProps = await map(interfaces, async (interfaceName) => {
+    const props = await fetchPropertiesForInterface(object, interfaceName)
+    return props
   })
-  return nestedProps.reduce((allProps, props) => {
-    return allProps.concat(props)
-  }, [])
+  return Object.assign({}, ...allProps)
+}
+
+export const fetchPropertiesForInterface = async (object: any, interfaceName: string): Promise<{ [key: string]: any }> => {
+  const getProp = object.getInterface('org.freedesktop.DBus.Properties').Get
+  const _interface = object.interfaces[interfaceName]
+  if (_interface === undefined) throw new Error(`Interface ${interfaceName} not found`)
+  const props = {}
+  await Promise.all(_interface['$properties'].map(async (prop: { name: string }) => {
+    const variant = await getProp(interfaceName, prop.name)
+    props[prop.name] = variant.value
+  }))
+  return props
 }

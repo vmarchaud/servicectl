@@ -23,8 +23,9 @@ export default class RestartCommand extends Command {
   async run () {
     const api = await ServiceAPI.init()
     const { args, flags } = this.parse(RestartCommand)
+    console.log(args)
     await api.status()
-
+    console.log('status')
     await api.destroy()
   }
 }

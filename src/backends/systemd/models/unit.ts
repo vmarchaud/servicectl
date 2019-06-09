@@ -1,6 +1,6 @@
 
 import { getSystemBus } from '../utils/bus'
-import { fetchProperties } from '../utils/properties'
+import { fetchPropertiesForInterface } from '../utils/properties'
 import { fetchMethods } from '../utils/methods'
 import { SystemdUnit } from '../types/unit'
 
@@ -14,12 +14,12 @@ export const parseRawUnit = async (raw: any[]): Promise<SystemdUnit> => {
 export const fetchUnit = async (path: string): Promise<SystemdUnit> => {
   const bus = getSystemBus()
   const unitObject = await bus.getProxyObject('org.freedesktop.systemd1', path)
-  const props = await fetchProperties(unitObject)
+  const props = await fetchPropertiesForInterface(unitObject, 'org.freedesktop.systemd1.Unit')
   const methods = await fetchMethods(unitObject)
   const unit = Object.assign(
     {},
     { interfaces: unitObject.interfaces },
-    ...props,
+    props,
     ...methods) as SystemdUnit
   return unit
 }

@@ -1,12 +1,11 @@
 
 import { SystemdManager, SystemdManagerRaw, StartMode } from '../types/manager'
 import { getSystemBus } from '../utils/bus'
-import { parseRawJob } from './job'
 import { fetchUnit, parseRawUnit } from './unit'
 import { SystemdService } from '../types/service'
 import { SystemdInterfacesType, hasInterface, SystemdUnit } from '../types/unit'
 
-export class SystemdManagerImpl implements SystemdManager {
+export class SystemdManagerImpl {
 
   private _manager: SystemdManagerRaw
 
@@ -28,17 +27,24 @@ export class SystemdManagerImpl implements SystemdManager {
   async ListServices (): Promise<SystemdService[]> {
     console.log('fetch')
     const rawUnits = await this._manager.ListUnits()
-    console.log('filter')
-    const bus = getSystemBus()
+    console.log(rawUnits
+      .filter(rawUnit => {
+        return rawUnit[0].indexOf('service') > -1
+      })
+      .filter(rawUnit => {
+        return rawUnit[4] === 'running'
+      }))
     const services = await Promise.all(rawUnits
       .filter(rawUnit => {
         return rawUnit[0].indexOf('service') > -1
       })
+      .filter(rawUnit => {
+        return rawUnit[4] === 'running'
+      })
       .filter(async rawUnit => {
         const path = rawUnit[6]
-        console.log(path)
         try {
-          const unitObject = await bus.getProxyObject('org.freedesktop.systemd1', path)
+          const unitObject = await getSystemBus().getProxyObject('org.freedesktop.systemd1', path)
           return hasInterface(unitObject, SystemdInterfacesType.SERVICE)
         } catch (err) {
           return false

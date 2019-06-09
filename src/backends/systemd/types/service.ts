@@ -8,8 +8,6 @@ export interface SystemdService extends SystemdUnit {
   readonly RestartUSec: bigint
   readonly TimeoutUSec: bigint
   readonly WatchdogUSec: bigint
-  readonly WatchdogTimestamp: bigint
-  readonly WatchdogTimestampMonotonic: bigint
   readonly StartLimitInterval: bigint
   readonly StartLimitBurst: number
   readonly StartLimitAction: string
@@ -22,86 +20,22 @@ export interface SystemdService extends SystemdUnit {
   readonly ExecStop: Array<[string, string[], boolean, bigint, bigint, number, number]>
   readonly ExecStopPost: Array<[string, string[], boolean, bigint, bigint, number, number]>
   readonly Environment: string[]
-  readonly EnvironmentFiles: Array<[ string, boolean]>
+  readonly EnvironmentFiles: Array<[string, boolean]>
   readonly UMask: number
-  readonly LimitCPU: bigint
-  readonly LimitFSIZE: bigint
-  readonly LimitDATA: bigint
-  readonly LimitSTACK: bigint
-  readonly LimitCORE: bigint
-  readonly LimitRSS: bigint
-  readonly LimitNOFILE: bigint
-  readonly LimitAS: bigint
-  readonly LimitNPROC: bigint
-  readonly LimitMEMLOCK: bigint
-  readonly LimitLOCKS: bigint
-  readonly LimitSIGPENDING: bigint
-  readonly LimitMSGQUEUE: bigint
-  readonly LimitNICE: bigint
-  readonly LimitRTPRIO: bigint
-  readonly LimitRTTIME: bigint
   readonly WorkingDirectory: string
   readonly RootDirectory: string
-  readonly OOMScoreAdjust: number
-  readonly Nice: number
-  readonly IOScheduling: number
-  readonly CPUSchedulingPolicy: number
-  readonly CPUSchedulingPriority: number
-  readonly CPUAffinity: any[]
-  readonly TimerSlackNSec: bigint
-  readonly CPUSchedulingResetOnFork: boolean
-  readonly NonBlocking: boolean
   readonly StandardInput: string
   readonly StandardOutput: string
   readonly StandardError: string
-  readonly TTYPath: string
-  readonly TTYReset: boolean
-  readonly TTYVHangup: boolean
-  readonly TTYVTDisallocate: boolean
-  readonly SyslogPriority: number
-  readonly SyslogIdentifier: string
-  readonly SyslogLevelPrefix: boolean
-  readonly Capabilities: string
-  readonly SecureBits: number
-  readonly CapabilityBoundingSet: bigint
   readonly User: string
   readonly Group: string
-  readonly SupplementaryGroups: string[]
-  readonly TCPWrapName: string
-  readonly PAMName: string
-  readonly ReadWriteDirectories: string[]
-  readonly ReadOnlyDirectories: string[]
-  readonly InaccessibleDirectories: string[]
-  readonly MountFlags: bigint
-  readonly PrivateTmp: boolean
-  readonly PrivateNetwork: boolean
-  readonly SameProcessGroup: boolean
-  readonly UtmpIdentifier: string
-  readonly IgnoreSIGPIPE: boolean
-  readonly NoNewPrivileges: boolean
-  readonly SystemCallFilter: number[]
-  readonly KillMode: string
   readonly KillSignal: number
   readonly SendSIGKILL: boolean
   readonly SendSIGHUP: boolean
-  readonly CPUAccounting: boolean
-  readonly CPUShares: bigint
-  readonly BlockIOAccounting: boolean
-  readonly BlockIOWeight: bigint
-  readonly BlockIODeviceWeight: Array<[string, bigint]>
-  readonly BlockIOReadBandwidth: Array<[string, bigint]>
-  readonly BlockIOWriteBandwidth: Array<[string, bigint]>
   readonly MemoryAccounting: boolean
   readonly MemoryLimit: bigint
-  readonly DevicePolicy: string
-  readonly DeviceAllow: Array<[string, string]>
-  readonly PermissionsStartOnly: boolean
-  readonly RootDirectoryStartOnly: boolean
-  readonly RemainAfterExit: boolean
   readonly ExecMainStartTimestamp: bigint
-  readonly ExecMainStartTimestampMonotonic: bigint
   readonly ExecMainExitTimestamp: bigint
-  readonly ExecMainExitTimestampMonotonic: bigint
   readonly ExecMainPID: number
   readonly ExecMainCode: number
   readonly ExecMainStatus: number
@@ -113,4 +47,14 @@ export interface SystemdService extends SystemdUnit {
 
   AttachProcesses (one: string, two: number[])
   GetProcesses (): Array<[string, number, string]>
+}
+
+export type ServiceTemplate = {
+  Type: 'simple' | 'exec' | 'forking' | 'oneshot' | 'dbus' | 'notify' | 'idle'
+  ExecStart: string
+  ExecStartPre?: string
+  ExecStartPost?: string
+  ExecReload?: string
+  ExecStop?: string
+  RestartSec?: string
 }

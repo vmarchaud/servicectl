@@ -11,23 +11,23 @@ export class SimpleSystemdService implements Service {
     this._backendService = rawService
   }
 
-  async start (): Promise<ThisType<Service>> {
-    await this._backendService.Start(StartMode.REPLACE)
+  async start (): Promise<Service> {
+    this._backendService.Start(StartMode.REPLACE)
     return this
   }
 
-  async stop (): Promise<ThisType<Service>> {
-    await this._backendService.Stop(StartMode.REPLACE)
+  async stop (): Promise<Service> {
+    this._backendService.Stop(StartMode.REPLACE)
     return this
   }
 
-  async restart (): Promise<ThisType<Service>> {
-    await this._backendService.TryRestart(StartMode.FAIL)
+  async restart (): Promise<Service> {
+    this._backendService.TryRestart(StartMode.FAIL)
     return this
   }
 
-  async kill (signal: number): Promise<ThisType<Service>> {
-    await this._backendService.Kill('one', signal)
+  async kill (signal: number): Promise<Service> {
+    this._backendService.Kill('one', signal)
     return this
   }
 
@@ -44,7 +44,7 @@ export class SimpleSystemdService implements Service {
   }
 
   async processes (): Promise<ServiceProcesses[]> {
-    const processes = await this._backendService.GetProcesses().map(raw => {
+    const processes = this._backendService.GetProcesses().map(raw => {
       return {
         argv: raw[2].split(' '),
         pid: raw[1]

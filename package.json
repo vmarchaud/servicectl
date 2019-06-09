@@ -13,8 +13,8 @@
     "v8-compile-cache": "^2.0.2"
   },
   "devDependencies": {
-    "@types/node": "^11.13.0",
     "@oclif/dev-cli": "^1.22.0",
+    "@types/node": "^11.13.0",
     "ts-node": "^8.1.0",
     "tslint": "^5.15.0",
     "tslint-config-standard": "^8.0.1",
@@ -24,7 +24,7 @@
     "node": ">=10.4.0"
   },
   "bin": {
-    "pm1": "./bin/run"
+    "servicectl": "./bin/run"
   },
   "oclif": {
     "commands": "./build/cli",
