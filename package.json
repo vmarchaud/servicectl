@@ -1,5 +1,5 @@
 {
-  "name": "pm1",
+  "name": "servicectl",
   "version": "0.0.0",
   "description": "better pm2",
   "main": "index.js",

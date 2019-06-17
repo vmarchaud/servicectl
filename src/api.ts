@@ -1,10 +1,12 @@
 import { ServiceBackend, ServiceCreateOptions } from './types/serviceBackend'
 import { platform } from 'os'
 import { SystemdBackend } from './models/systemd/systemdBackend'
+import {Service} from './types/service';
 
 export enum ServiceAPIMode {
-  USER,
-  SYSTEM
+  USER = 'user',
+  NOBODY = 'nobody',
+  ROOT = 'root'
 }
 
 export class ServiceAPI {
@@ -38,12 +40,13 @@ export class ServiceAPI {
     console.log(`Restarted ${service.name}, pid: ${service.pid}`)
   }
 
-  async status () {
+  async list () {
     const services = await this.backend.list()
-    console.log(services.map(service => service.name))
+    return services
   }
 
-  async create (options: ServiceCreateOptions) {
+  async create (options: ServiceCreateOptions): Promise<Service> {
     const service = await this.backend.create(options)
+    return service
   }
 }

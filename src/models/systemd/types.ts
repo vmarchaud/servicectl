@@ -17,7 +17,14 @@ export type ServiceTemplateOptions = {
   Restart: ServiceRestartBehavior
 }
 
+export type ExecTemplateOptions = {
+  User?: number,
+  Group?: number,
+  DynamicUser?: boolean
+}
+
 export type TemplateOptions = {
   unit: UnitTemplateOptions
   service: ServiceTemplateOptions
+  exec: ExecTemplateOptions
 }

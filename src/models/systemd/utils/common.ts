@@ -2,6 +2,7 @@
 import * as path from 'path'
 import * as fs from 'fs'
 import { ServiceAPIMode } from '../../../api'
+import { ExecTemplateOptions } from '../types'
 
 const getInterpreterByExtension = (extension: string): string | undefined => {
   const map = {
@@ -52,23 +53,7 @@ export const locateInterpreterForFile = async (file: string): Promise<string | u
  * Fetch path of the repository to install/get service files.
  */
 export const getRepositoryPath = async (mode: ServiceAPIMode): Promise<string> => {
-  switch (mode) {
-    case ServiceAPIMode.SYSTEM: {
-      return `/usr/local/lib/systemd/system/`
-    }
-    case ServiceAPIMode.USER: {
-      const XDG = process.env.XDG_DATA_HOME ? `${process.env.XDG_DATA_HOME}/systemd/user/` : undefined
-      const home = process.env.HOME ? `${process.env.HOME}/.local/share/systemd/user/` : undefined
-      if (XDG === undefined && home === undefined) {
-        throw new Error(`Could not find HOME environment variable`)
-      } else {
-        // actually it's not possible that both are undefined since we make the check above
-        // @ts-ignore
-        return XDG || home
-      }
-    }
-  }
-  throw new Error(`No service mode has been given`)
+  return `/etc/systemd/system/`
 }
 
 /**
@@ -98,4 +83,38 @@ export const mkdirRecursive = (targetDir: string) => {
 
     return curDir
   }, sep)
+}
+
+/**
+ * Depending on the mode of the cli, compute the exec options of the service
+ */
+export const getExecOptions = (mode: ServiceAPIMode): ExecTemplateOptions => {
+  switch (mode) {
+    case ServiceAPIMode.USER: {
+      if (process.env.USER === 'root' && process.env.SUDO_UID === undefined) {
+        return {
+          User: 0,
+          Group: 0
+        }
+      }
+      const group = process.env.SUDO_GID
+      const user = process.env.SUDO_UID
+      if (user === undefined || group === undefined) {
+        throw new Error(`Not able to find your true user`)
+      }
+      return {
+        User: parseInt(user, 10),
+        Group: parseInt(group, 10)
+      }
+    }
+    case ServiceAPIMode.NOBODY: {
+      return { DynamicUser: true }
+    }
+    case ServiceAPIMode.ROOT: {
+      return {
+        User: 0,
+        Group: 0
+      }
+    }
+  }
 }

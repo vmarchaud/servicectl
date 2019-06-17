@@ -6,4 +6,3 @@ export * from './types/unit'
 
 export * from './models/manager'
 export * from './models/unit'
-export * from './models/job'

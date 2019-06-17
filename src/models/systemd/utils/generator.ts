@@ -15,8 +15,13 @@ ${
     return `${key}=${value}`
   }).join('\n')
 }
+${
+  Object.entries(service.exec).map(([key, value]) => {
+    return `${key}=${value}`
+  }).join('\n')
+}
 
 [Install]
-WantedBy=multi-user.target
-  `
+WantedBy=default.target.
+`
 }

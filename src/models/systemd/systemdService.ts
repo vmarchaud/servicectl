@@ -1,34 +1,35 @@
 
-import { Service, ServiceLimit, ServiceUsage, ServiceProcesses } from '../../types/service'
-import { SystemdService } from '../../backends/systemd/types/service'
-import { StartMode } from '../../backends/systemd/types/manager'
+import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState } from '../../types/service'
+import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType } from './utils/dbus'
 
 export class SimpleSystemdService implements Service {
 
-  private _backendService: SystemdService
+  private dbusObject: SystemdService
 
-  constructor (rawService: SystemdService) {
-    this._backendService = rawService
+  name: string
+  pid: number
+  description: string
+  state: ServiceState
+  mode = ServiceMode.EXEC
+
+  constructor (dbusObject: SystemdService) {
+    this.dbusObject = dbusObject
   }
 
   async start (): Promise<Service> {
-    this._backendService.Start(StartMode.REPLACE)
-    return this
+    throw new Error('Method not implemented.')
   }
 
   async stop (): Promise<Service> {
-    this._backendService.Stop(StartMode.REPLACE)
-    return this
+    throw new Error('Method not implemented.')
   }
 
   async restart (): Promise<Service> {
-    this._backendService.TryRestart(StartMode.FAIL)
-    return this
+    throw new Error('Method not implemented.')
   }
 
   async kill (signal: number): Promise<Service> {
-    this._backendService.Kill('one', signal)
-    return this
+    throw new Error('Method not implemented.')
   }
 
   async logs (limit: number, offet: number): Promise<string[]> {
@@ -44,7 +45,7 @@ export class SimpleSystemdService implements Service {
   }
 
   async processes (): Promise<ServiceProcesses[]> {
-    const processes = this._backendService.GetProcesses().map(raw => {
+    const processes = this.dbusObject.GetProcesses().map(raw => {
       return {
         argv: raw[2].split(' '),
         pid: raw[1]
@@ -53,23 +54,35 @@ export class SimpleSystemdService implements Service {
     return processes
   }
 
-  get pid (): number {
-    return this._backendService.MainPID
+  /**
+   * Used to load lazy properties
+   */
+  async _load () {
+    const name: string = await fetchProperty(this.dbusObject, SystemdInterfacesType.UNIT, 'Id')
+    this.name = name.replace('servicectl.', '').replace('.service', '')
+    this.pid = await fetchProperty(this.dbusObject, SystemdInterfacesType.SERVICE, 'MainPID')
+    this.description = await fetchProperty(this.dbusObject, SystemdInterfacesType.UNIT, 'Description')
+    this.state = await fetchProperty(this.dbusObject, SystemdInterfacesType.UNIT, 'ActiveState')
   }
 
-  get active (): boolean {
-    return this._backendService.ActiveState === 'active'
+  /**
+   * Fetch a service by its name and construct a SimpleSystemdService with the dbus object
+   */
+  static async fromSystemd (manager: SystemdManager, service: string): Promise<SimpleSystemdService> {
+    const units = await manager.ListUnits()
+    const unit = units.find(unit => unit[0] === service)
+    const object = await manager.bus.getProxyObject('org.freedesktop.systemd1', unit[6])
+    const simpleService = new SimpleSystemdService(object)
+    await simpleService._load()
+    return simpleService
   }
 
-  get description (): string {
-    return this._backendService.Description
-  }
-
-  get name (): string {
-    return this._backendService.Id
-  }
-
-  static async fromSystemd (service: SystemdService) {
-    return new SimpleSystemdService(service)
+  /**
+   * Construct a SimpleSystemdService from the dbus object
+   */
+  static async fromSystemdObject (manager: SystemdManager, object: any): Promise<SimpleSystemdService> {
+    const simpleService = new SimpleSystemdService(object)
+    await simpleService._load()
+    return simpleService
   }
 }

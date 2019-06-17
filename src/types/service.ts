@@ -17,10 +17,10 @@ export type ServiceProcesses = {
 }
 
 export enum ServiceMode {
-  EXEC = 'exec',
-  FORK = 'fork',
-  CLUSTER = 'cluster'
+  EXEC = 'exec'
 }
+
+export type ServiceState = 'active' | 'reloading' | 'inactive' | 'failed' | 'activating' | 'deactivating'
 
 export interface Service {
 
@@ -29,7 +29,7 @@ export interface Service {
   restart (): Promise<Service>
   kill (code: number): Promise<Service>
 
-  logs (limit: number, offet: number): Promise<string[]>
+  logs (limit: number, offset: number): Promise<string[]>
 
   usage (): Promise<ServiceUsage>
   limit (): Promise<ServiceLimit>
@@ -37,7 +37,7 @@ export interface Service {
   processes (): Promise<ServiceProcesses[]>
 
   pid: number
-  active: boolean
+  state: ServiceState
   description: string
   name: string
   mode: ServiceMode
