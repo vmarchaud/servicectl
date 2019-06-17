@@ -1,3 +1,4 @@
+import { RetrieveLogsOptions } from './serviceBackend'
 
 export type ServiceUsage = {
   cpu: bigint,
@@ -26,6 +27,11 @@ export type ServiceTimestamps = {
   startedAt: number
 }
 
+export type ServiceLogs = {
+  output: string[]
+  error: string[]
+}
+
 export interface Service {
 
   start (): Promise<Service>
@@ -33,7 +39,7 @@ export interface Service {
   restart (): Promise<Service>
   kill (code: number): Promise<Service>
 
-  logs (limit: number, offset: number): Promise<string[]>
+  logs (options: RetrieveLogsOptions): Promise<ServiceLogs>
 
   usage (): Promise<ServiceUsage>
   limit (): Promise<ServiceLimit>

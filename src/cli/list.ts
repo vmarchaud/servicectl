@@ -32,21 +32,26 @@ export default class ListCommand extends Command {
     }
   }
 
+  static async computeUsage (service: Service) {
+    const usage = await service.usage()
+    // convert it to milliseconds
+    const cpuUsage = Number(usage.cpu / 1000000n)
+    // compute how much time passed since it started in ms
+    const msElapsed = Date.now() - service.timestamps.startedAt
+    return {
+      cpu: (cpuUsage / msElapsed).toFixed(0),
+      // convert it to MB
+      memory: (Number(usage.memory) / 1024).toFixed(2)
+    }
+  }
+
   async run () {
     const { args, flags } = this.parse(ListCommand)
     const api = await ServiceAPI.init(ServiceAPIMode.USER)
     const services = await api.list()
     const servicesWithUsage = await async.mapLimit(services, 5, (service: Service, next) => {
-      service.usage().then(usage => {
-        // convert it to milliseconds
-        const cpuUsage = Number(usage.cpu / 1000000n)
-        // compute how much time passed since it started in ms
-        const msElapsed = Date.now() - service.timestamps.startedAt
-        return next(null, Object.assign(service, {
-          cpu: (cpuUsage / msElapsed).toFixed(0),
-          // convert it to MB
-          memory: (Number(usage.memory) / 1024).toFixed(2)
-        }))
+      ListCommand.computeUsage(service).then(usage => {
+        return next(null, Object.assign(service, usage))
       }).catch(next)
     })
     cli.table(servicesWithUsage, ListCommand.headers, { ...flags })

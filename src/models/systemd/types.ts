@@ -17,14 +17,20 @@ export type ServiceTemplateOptions = {
   Restart: ServiceRestartBehavior
 }
 
-export type ExecTemplateOptions = {
-  User?: number,
-  Group?: number,
+export type PermissionsTemplateOptions = {
+  User?: number
+  Group?: number
   DynamicUser?: boolean
+}
+
+export type ExecTemplateOptions = {
+  StandardOutput: string
+  StandardError: string
 }
 
 export type TemplateOptions = {
   unit: UnitTemplateOptions
   service: ServiceTemplateOptions
+  permissions: PermissionsTemplateOptions
   exec: ExecTemplateOptions
 }

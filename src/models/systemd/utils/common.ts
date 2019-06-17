@@ -2,7 +2,7 @@
 import * as path from 'path'
 import * as fs from 'fs'
 import { ServiceAPIMode } from '../../../api'
-import { ExecTemplateOptions } from '../types'
+import { PermissionsTemplateOptions } from '../types'
 
 const getInterpreterByExtension = (extension: string): string | undefined => {
   const map = {
@@ -52,8 +52,15 @@ export const locateInterpreterForFile = async (file: string): Promise<string | u
 /**
  * Fetch path of the repository to install/get service files.
  */
-export const getRepositoryPath = async (mode: ServiceAPIMode): Promise<string> => {
+export const getRepositoryPath = async (): Promise<string> => {
   return `/etc/systemd/system/`
+}
+
+/**
+ * Fetch path of the repository to install/get service files.
+ */
+export const getLogsPath = async (): Promise<string> => {
+  return `/var/log/servicectl`
 }
 
 /**
@@ -88,7 +95,7 @@ export const mkdirRecursive = (targetDir: string) => {
 /**
  * Depending on the mode of the cli, compute the exec options of the service
  */
-export const getExecOptions = (mode: ServiceAPIMode): ExecTemplateOptions => {
+export const getPermissionsOptions = (mode: ServiceAPIMode): PermissionsTemplateOptions => {
   switch (mode) {
     case ServiceAPIMode.USER: {
       if (process.env.USER === 'root' && process.env.SUDO_UID === undefined) {

@@ -1,7 +1,7 @@
-import { ServiceBackend, ServiceCreateOptions } from './types/serviceBackend'
+import { ServiceBackend, ServiceCreateOptions, RetrieveLogsOptions } from './types/serviceBackend'
 import { platform } from 'os'
 import { SystemdBackend } from './models/systemd/systemdBackend'
-import {Service} from './types/service';
+import { Service, ServiceLogs } from './types/service'
 
 export enum ServiceAPIMode {
   USER = 'user',
@@ -48,5 +48,11 @@ export class ServiceAPI {
   async create (options: ServiceCreateOptions): Promise<Service> {
     const service = await this.backend.create(options)
     return service
+  }
+
+  async retrieveLogs (name: string, options: RetrieveLogsOptions): Promise<ServiceLogs> {
+    const service = await this.backend.get(name)
+    const logs = await service.logs(options)
+    return logs
   }
 }

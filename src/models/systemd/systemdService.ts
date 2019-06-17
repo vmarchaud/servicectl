@@ -1,6 +1,9 @@
 
-import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState, ServiceTimestamps } from '../../types/service'
+import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState, ServiceTimestamps, ServiceLogs } from '../../types/service'
 import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType } from './utils/dbus'
+import * as fs from 'fs'
+import { getLogsPath } from './utils/common'
+import { RetrieveLogsOptions } from '../../types/serviceBackend'
 
 export class SimpleSystemdService implements Service {
 
@@ -33,8 +36,37 @@ export class SimpleSystemdService implements Service {
     throw new Error('Method not implemented.')
   }
 
-  async logs (limit: number, offet: number): Promise<string[]> {
-    throw new Error('Method not implemented.')
+  async logs (options: RetrieveLogsOptions): Promise<ServiceLogs> {
+    const logsPath = await getLogsPath()
+    const filesType = [ 'out', 'err' ]
+    let outLines: string[] = []
+    let errorLines: string[] = []
+
+    await Promise.all(filesType.map((type) => {
+      const path = `${logsPath}/${this.name}.${type}.log`
+      const size = fs.statSync(path).size
+      const stream = fs.createReadStream(path, {
+        start: size - (options.limit * 100)
+      })
+      return new Promise((resolve, reject) => {
+        const chunks: string[] = []
+        stream.on('data', (chunk) => chunks.push(chunk))
+        stream.on('error', reject)
+        stream.on('close', () => {
+          const lines: string[] = chunks.join('').split('\n').filter(line => line.length > 0)
+          if (type === 'out') {
+            outLines = lines.slice(lines.length - 1 - options.limit, lines.length - 1)
+          } else {
+            errorLines = lines.slice(lines.length - 1 - options.limit, lines.length - 1)
+          }
+          return resolve()
+        })
+      })
+    }))
+    return {
+      output: outLines,
+      error: errorLines
+    }
   }
 
   async usage (): Promise<ServiceUsage> {

@@ -38,7 +38,7 @@ export default class CreateCommand extends Command {
       script: scriptPath,
       interpreter: flags.interpreter
     })
-    const usage = await service.usage()
+    const usage = await ListCommand.computeUsage(service)
     cli.table([ Object.assign(service, usage) ], ListCommand.headers)
     await api.destroy()
   }

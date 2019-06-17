@@ -76,6 +76,8 @@ export interface SystemdManager {
 
   ListUnits (): Promise<Array<any>>
   ListJobs (): Promise<Array<any>>
+
+  Reload (): Promise<void>
 }
 
 export interface SystemdUnit {

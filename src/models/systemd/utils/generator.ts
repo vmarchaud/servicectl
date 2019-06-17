@@ -1,5 +1,5 @@
 
-import { TemplateOptions, ServiceTemplateOptions, UnitTemplateOptions } from '../types'
+import { TemplateOptions } from '../types'
 
 export const generateServiceFile = async (service: TemplateOptions): Promise<string> => {
   return `[Unit]
@@ -13,6 +13,11 @@ After=network.target
 [Service]
 ${
   Object.entries(service.service).map(([key, value]) => {
+    return `${key}=${value}`
+  }).join('\n')
+}
+${
+  Object.entries(service.permissions).map(([key, value]) => {
     return `${key}=${value}`
   }).join('\n')
 }

@@ -12,6 +12,11 @@ export type ServiceCreateOptions = {
   interpreter?: string
 }
 
+export type RetrieveLogsOptions = {
+  limit: number
+  follow: boolean
+}
+
 export interface ServiceBackend {
 
   init (config: BackendConfig): Promise<ServiceBackend>

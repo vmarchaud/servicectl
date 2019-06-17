@@ -1,8 +1,18 @@
 
-import { ServiceBackend, BackendConfig, ServiceCreateOptions } from '../../types/serviceBackend'
+import {
+  ServiceBackend,
+  BackendConfig,
+  ServiceCreateOptions
+} from '../../types/serviceBackend'
 import { Service } from '../../types/service'
 import { generateServiceFile } from './utils/generator'
-import { locateInterpreterForFile, getRepositoryPath, mkdirRecursive, getExecOptions } from './utils/common'
+import {
+  locateInterpreterForFile,
+  getRepositoryPath,
+  mkdirRecursive,
+  getPermissionsOptions,
+  getLogsPath
+} from './utils/common'
 import * as fs from 'fs'
 import { ServiceAPIMode } from '../../api'
 import * as path from 'path'
@@ -30,6 +40,8 @@ export class SystemdBackend implements ServiceBackend {
     const interpreter = options.interpreter ? options.interpreter : await locateInterpreterForFile(options.script)
     const scriptFilename = options.script.split(path.sep).pop()
     const scriptName = scriptFilename ? scriptFilename.split('.').splice(0, 1)[0] : 'no-name'
+    const name = options.name || scriptName
+    const logsPath = await getLogsPath()
     const fileContent = await generateServiceFile({
       service: {
         Type: 'exec',
@@ -39,12 +51,17 @@ export class SystemdBackend implements ServiceBackend {
       unit: {
         Description: 'Service managed by servicectl'
       },
-      exec: getExecOptions(this.mode)
+      permissions: getPermissionsOptions(this.mode),
+      exec: {
+        StandardOutput: `append:${logsPath}${path.sep}${name}.out.log`,
+        StandardError: `append:${logsPath}${path.sep}${name}.err.log`
+      }
     })
-    const repositoryPath = await getRepositoryPath(this.mode)
-    // be sure that the path exist
+    const repositoryPath = await getRepositoryPath()
+    // be sure that the paths exist
     mkdirRecursive(repositoryPath)
-    const serviceFilename = `servicectl.${options.name || scriptName}.service`
+    mkdirRecursive(logsPath)
+    const serviceFilename = `servicectl.${name}.service`
     const serviceFilepath = path.resolve(repositoryPath, serviceFilename)
     const exists = fs.existsSync(serviceFilepath)
     if (exists === true) {
@@ -54,6 +71,7 @@ export class SystemdBackend implements ServiceBackend {
     // write the service file
     fs.writeFileSync(serviceFilepath, fileContent)
     // start it
+    await this.backend.Reload()
     await this.backend.StartUnit(serviceFilename, StartMode.REPLACE)
     const service = await SimpleSystemdService.fromSystemd(this.backend, serviceFilename)
     return service
@@ -64,11 +82,20 @@ export class SystemdBackend implements ServiceBackend {
   }
 
   async restart (name: string): Promise<Service> {
-    throw new Error('Method not implemented.')
+    const service = await this.get(name)
+    await service.restart()
+    return service
   }
 
   async get (name: string): Promise<Service> {
-    throw new Error('Method not implemented.')
+    const units = await this.backend.ListUnits()
+    const rawService = units.find(unit => unit[0].indexOf(`servicectl.${name}`) !== -1)
+    if (rawService === undefined) {
+      throw new Error(`Service name ${name} not found on the system`)
+    }
+    const object = await this.backend.bus.getProxyObject('org.freedesktop.systemd1', rawService[6])
+    const service = await SimpleSystemdService.fromSystemdObject(this.backend, object)
+    return service
   }
 
   async stop (name: string): Promise<Service> {
