@@ -1,6 +1,7 @@
 
-import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState } from '../../types/service'
+import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState, ServiceTimestamps } from '../../types/service'
 import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType } from './utils/dbus'
+import * as moment from 'moment'
 
 export class SimpleSystemdService implements Service {
 
@@ -11,6 +12,7 @@ export class SimpleSystemdService implements Service {
   description: string
   state: ServiceState
   mode = ServiceMode.EXEC
+  timestamps: ServiceTimestamps
 
   constructor (dbusObject: SystemdService) {
     this.dbusObject = dbusObject
@@ -37,7 +39,12 @@ export class SimpleSystemdService implements Service {
   }
 
   async usage (): Promise<ServiceUsage> {
-    throw new Error('Method not implemented.')
+    const usage: ServiceUsage = {
+      cpu: await fetchProperty(this.dbusObject, SystemdInterfacesType.SERVICE, 'CPUUsageNSec'),
+      memory: await fetchProperty(this.dbusObject, SystemdInterfacesType.SERVICE, 'MemoryCurrent') / 1024n,
+      tasks: await fetchProperty(this.dbusObject, SystemdInterfacesType.SERVICE, 'TasksCurrent')
+    }
+    return usage
   }
 
   async limit (): Promise<ServiceLimit> {
@@ -63,6 +70,17 @@ export class SimpleSystemdService implements Service {
     this.pid = await fetchProperty(this.dbusObject, SystemdInterfacesType.SERVICE, 'MainPID')
     this.description = await fetchProperty(this.dbusObject, SystemdInterfacesType.UNIT, 'Description')
     this.state = await fetchProperty(this.dbusObject, SystemdInterfacesType.UNIT, 'ActiveState')
+
+    const startedAt: bigint = await fetchProperty(this.dbusObject, SystemdInterfacesType.SERVICE, 'ExecMainStartTimestamp')
+    this.timestamps = {
+      // by default it's in microseconds, we can use milliseconds here
+      startedAt: Math.round(Number(startedAt) / 1000)
+    }
+  }
+
+  async getProperty (name: string) {
+    const value = await fetchProperty(this.dbusObject, SystemdInterfacesType.SERVICE, name)
+    return value
   }
 
   /**

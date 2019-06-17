@@ -8,6 +8,7 @@ ${
     return `${key}=${value}`
   }).join('\n')
 }
+After=network.target
 
 [Service]
 ${
@@ -20,8 +21,10 @@ ${
     return `${key}=${value}`
   }).join('\n')
 }
+CPUAccounting=yes
+MemoryAccounting=yes
 
 [Install]
-WantedBy=default.target.
+WantedBy=multi-user.target
 `
 }

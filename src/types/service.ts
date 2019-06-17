@@ -1,7 +1,7 @@
 
 export type ServiceUsage = {
-  cpu: number,
-  mem: number,
+  cpu: bigint,
+  memory: bigint,
   tasks: number
 }
 
@@ -22,6 +22,10 @@ export enum ServiceMode {
 
 export type ServiceState = 'active' | 'reloading' | 'inactive' | 'failed' | 'activating' | 'deactivating'
 
+export type ServiceTimestamps = {
+  startedAt: number
+}
+
 export interface Service {
 
   start (): Promise<Service>
@@ -36,9 +40,13 @@ export interface Service {
 
   processes (): Promise<ServiceProcesses[]>
 
+  getProperty (name: string): Promise<any>
+
   pid: number
   state: ServiceState
   description: string
   name: string
   mode: ServiceMode
+
+  timestamps: ServiceTimestamps
 }

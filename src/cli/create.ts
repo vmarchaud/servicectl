@@ -38,7 +38,8 @@ export default class CreateCommand extends Command {
       script: scriptPath,
       interpreter: flags.interpreter
     })
-    cli.table([ service ], ListCommand.headers)
+    const usage = await service.usage()
+    cli.table([ Object.assign(service, usage) ], ListCommand.headers)
     await api.destroy()
   }
 }
