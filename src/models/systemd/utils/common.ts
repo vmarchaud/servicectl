@@ -27,7 +27,7 @@ export const locateInterpreter = async (interpreter: string): Promise<string | u
   for (let rootPath of paths) {
     const interpreterPath = path.resolve(rootPath, interpreter)
     try {
-      await fs.promises.access(interpreterPath, fs.constants.X_OK)
+      fs.accessSync(interpreterPath, fs.constants.X_OK)
       return interpreterPath
     } catch (err) {
       continue

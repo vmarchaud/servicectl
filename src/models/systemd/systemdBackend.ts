@@ -6,7 +6,7 @@ import { locateInterpreterForFile, getRepositoryPath, mkdirRecursive, getExecOpt
 import * as fs from 'fs'
 import { ServiceAPIMode } from '../../api'
 import * as path from 'path'
-import { SystemdManager, getManager, getUnit, StartMode } from './utils/dbus'
+import { SystemdManager, getManager, StartMode } from './utils/dbus'
 import { SimpleSystemdService } from './systemdService'
 
 export class SystemdBackend implements ServiceBackend {
@@ -52,7 +52,7 @@ export class SystemdBackend implements ServiceBackend {
     }
 
     // write the service file
-    await fs.promises.writeFile(serviceFilepath, fileContent)
+    fs.writeFileSync(serviceFilepath, fileContent)
     // start it
     await this.backend.StartUnit(serviceFilename, StartMode.REPLACE)
     const service = await SimpleSystemdService.fromSystemd(this.backend, serviceFilename)
@@ -77,8 +77,7 @@ export class SystemdBackend implements ServiceBackend {
 
   async list (): Promise<Service[]> {
     const units = await this.backend.ListUnits()
-    units.forEach(unit => console.log(unit))
-    const rawServices = units.filter(unit => unit[0].indexOf('.service') !== -1)
+    const rawServices = units.filter(unit => unit[0].indexOf('servicectl') !== -1)
     const services: Service[] = []
 
     await Promise.all(rawServices.map(async unit => {
