@@ -8,6 +8,8 @@ import * as async from 'async'
 export default class ListCommand extends Command {
   static description = 'List current loaded services'
 
+  static aliases = ['status', 'ps', 'ls']
+
   static flags = {
     help: flags.help({ char: 'h' }),
     ...cli.table.flags()

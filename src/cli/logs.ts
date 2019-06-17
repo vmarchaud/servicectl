@@ -1,12 +1,11 @@
 
 import { Command, flags } from '@oclif/command'
 import { ServiceAPI, ServiceAPIMode } from '../api'
-import { cli } from 'cli-ux'
-import { Service } from '../types/service'
-import * as async from 'async'
 
 export default class LogsCommand extends Command {
-  static description = 'List current loaded services'
+  static description = 'Get the log from a service'
+
+  static aliases = ['log', 'logs']
 
   static flags = {
     help: flags.help({ char: 'h' }),
