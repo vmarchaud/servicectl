@@ -1,7 +1,6 @@
 
 import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState, ServiceTimestamps } from '../../types/service'
 import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType } from './utils/dbus'
-import * as moment from 'moment'
 
 export class SimpleSystemdService implements Service {
 

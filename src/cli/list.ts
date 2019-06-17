@@ -4,7 +4,6 @@ import { ServiceAPI, ServiceAPIMode } from '../api'
 import { cli } from 'cli-ux'
 import { Service } from '../types/service'
 import * as async from 'async'
-import * as moment from 'moment'
 
 export default class ListCommand extends Command {
   static description = 'List current loaded services'
