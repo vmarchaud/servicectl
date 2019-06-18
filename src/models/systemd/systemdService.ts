@@ -15,6 +15,7 @@ export class SimpleSystemdService implements Service {
   state: ServiceState
   mode = ServiceMode.EXEC
   timestamps: ServiceTimestamps
+  instance = 0
 
   constructor (dbusObject: SystemdService) {
     this.dbusObject = dbusObject

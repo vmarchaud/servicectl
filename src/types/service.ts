@@ -18,7 +18,8 @@ export type ServiceProcesses = {
 }
 
 export enum ServiceMode {
-  EXEC = 'exec'
+  EXEC = 'exec',
+  CLUSTER = 'cluster'
 }
 
 export type ServiceState = 'active' | 'reloading' | 'inactive' | 'failed' | 'activating' | 'deactivating'
@@ -53,6 +54,7 @@ export interface Service {
   description: string
   name: string
   mode: ServiceMode
+  instance: number
 
   timestamps: ServiceTimestamps
 }

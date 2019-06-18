@@ -4,6 +4,7 @@ import { ServiceAPI, ServiceAPIMode } from '../api'
 import { cli } from 'cli-ux'
 import * as path from 'path'
 import ListCommand from './list'
+import { ServiceMode } from '../types/service'
 
 export default class CreateCommand extends Command {
   static description = 'register your application to the init system and run it'
@@ -15,6 +16,9 @@ export default class CreateCommand extends Command {
     }),
     as: flags.string({
       description: 'Choose permission to assign to the service (either user (default), nobody or root)'
+    }),
+    instances: flags.integer({
+      description: 'Choose how many application instances will be launched'
     })
   }
 
@@ -34,12 +38,14 @@ export default class CreateCommand extends Command {
       throw new Error(`You must use sudo with servicectl for it to work properly.`)
     }
 
-    const service = await api.create({
+    const services = await api.create({
       script: scriptPath,
-      interpreter: flags.interpreter
+      interpreter: flags.interpreter,
+      mode: flags.instances ? ServiceMode.CLUSTER : ServiceMode.EXEC,
+      count: flags.instances
     })
-    const usage = await ListCommand.computeUsage(service)
-    cli.table([ Object.assign(service, usage) ], ListCommand.headers)
+    const servicesWithUsage = await ListCommand.getUsageForServices(services)
+    cli.table(servicesWithUsage, ListCommand.headers)
     await api.destroy()
   }
 }

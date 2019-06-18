@@ -1,5 +1,5 @@
 
-import { Service } from './service'
+import { Service, ServiceMode } from './service'
 import { ServiceAPIMode } from '../api'
 
 export type BackendConfig = {
@@ -10,6 +10,8 @@ export type ServiceCreateOptions = {
   name?: string
   script: string
   interpreter?: string
+  mode: ServiceMode
+  count?: number
 }
 
 export type RetrieveLogsOptions = {
@@ -22,7 +24,7 @@ export interface ServiceBackend {
   init (config: BackendConfig): Promise<ServiceBackend>
   destroy (): Promise<void>
 
-  create (options: ServiceCreateOptions): Promise<Service>
+  create (options: ServiceCreateOptions): Promise<Service[]>
   start (name: string): Promise<Service>
   restart (name: string): Promise<Service>
   stop (name: string): Promise<Service>

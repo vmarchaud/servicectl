@@ -4,20 +4,15 @@ import {
   BackendConfig,
   ServiceCreateOptions
 } from '../../types/serviceBackend'
-import { Service } from '../../types/service'
-import { generateServiceFile } from './utils/generator'
-import {
-  locateInterpreterForFile,
-  getRepositoryPath,
-  mkdirRecursive,
-  getPermissionsOptions,
-  getLogsPath
-} from './utils/common'
-import * as fs from 'fs'
+import { Service, ServiceMode } from '../../types/service'
 import { ServiceAPIMode } from '../../api'
 import * as path from 'path'
+import * as fs from 'fs'
 import { SystemdManager, getManager, StartMode } from './utils/dbus'
 import { SimpleSystemdService } from './systemdService'
+import { ExecServiceCreator } from './creators/exec'
+import { ClusterServiceCreator } from './creators/cluster'
+import { ServiceCreator } from './creators/types'
 
 export class SystemdBackend implements ServiceBackend {
 
@@ -36,45 +31,34 @@ export class SystemdBackend implements ServiceBackend {
     }
   }
 
-  async create (options: ServiceCreateOptions): Promise<Service> {
-    const interpreter = options.interpreter ? options.interpreter : await locateInterpreterForFile(options.script)
-    const scriptFilename = options.script.split(path.sep).pop()
-    const scriptName = scriptFilename ? scriptFilename.split('.').splice(0, 1)[0] : 'no-name'
-    const name = options.name || scriptName
-    const logsPath = await getLogsPath()
-    const fileContent = await generateServiceFile({
-      service: {
-        Type: 'exec',
-        ExecStart: `${interpreter ? interpreter + ' ' : ''}${options.script}`,
-        Restart: 'on-failure'
-      },
-      unit: {
-        Description: 'Service managed by servicectl'
-      },
-      permissions: getPermissionsOptions(this.mode),
-      exec: {
-        StandardOutput: `append:${logsPath}${path.sep}${name}.out.log`,
-        StandardError: `append:${logsPath}${path.sep}${name}.err.log`
+  async create (options: ServiceCreateOptions): Promise<Service[]> {
+    let creator: ServiceCreator
+    switch (options.mode) {
+      case ServiceMode.EXEC: {
+        creator = new ExecServiceCreator(options, this.mode)
+        break
       }
-    })
-    const repositoryPath = await getRepositoryPath()
-    // be sure that the paths exist
-    mkdirRecursive(repositoryPath)
-    mkdirRecursive(logsPath)
-    const serviceFilename = `servicectl.${name}.service`
-    const serviceFilepath = path.resolve(repositoryPath, serviceFilename)
-    const exists = fs.existsSync(serviceFilepath)
-    if (exists === true) {
-      throw new Error(`The service already exists, please use restart or update if you want to change the configuration`)
+      case ServiceMode.CLUSTER: {
+        creator = new ClusterServiceCreator(options, this.mode)
+        break
+      }
+      default: {
+        throw new Error(`Invalid service mode specified: ${options.mode}`)
+      }
     }
 
-    // write the service file
-    fs.writeFileSync(serviceFilepath, fileContent)
-    // start it
-    await this.backend.Reload()
-    await this.backend.StartUnit(serviceFilename, StartMode.REPLACE)
-    const service = await SimpleSystemdService.fromSystemd(this.backend, serviceFilename)
-    return service
+    const files = await creator.generateFiles()
+    // create all files for given paths
+    await Promise.all(files.map(async file => {
+      const exists = fs.existsSync(file.path)
+      if (exists === true) {
+        throw new Error(`The service already exists, please use restart or update if you want to change the configuration`)
+      }
+      fs.writeFileSync(file.path, file.content)
+    }))
+    // start them
+    const services = await creator.start(this.backend)
+    return services
   }
 
   async start (name: string): Promise<Service> {

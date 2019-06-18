@@ -47,15 +47,20 @@ export default class ListCommand extends Command {
     }
   }
 
-  async run () {
-    const { args, flags } = this.parse(ListCommand)
-    const api = await ServiceAPI.init(ServiceAPIMode.USER)
-    const services = await api.list()
-    const servicesWithUsage = await async.mapLimit(services, 5, (service: Service, next) => {
+  static async getUsageForServices (services: Service[]) {
+    const servicesWithUsage = await async.map(services, (service: Service, next) => {
       ListCommand.computeUsage(service).then(usage => {
         return next(null, Object.assign(service, usage))
       }).catch(next)
     })
+    return servicesWithUsage
+  }
+
+  async run () {
+    const { args, flags } = this.parse(ListCommand)
+    const api = await ServiceAPI.init(ServiceAPIMode.USER)
+    const services = await api.list()
+    const servicesWithUsage = await ListCommand.getUsageForServices(services)
     cli.table(servicesWithUsage, ListCommand.headers, { ...flags })
     await api.destroy()
   }

@@ -45,7 +45,7 @@ export class ServiceAPI {
     return services
   }
 
-  async create (options: ServiceCreateOptions): Promise<Service> {
+  async create (options: ServiceCreateOptions): Promise<Service[]> {
     const service = await this.backend.create(options)
     return service
   }
