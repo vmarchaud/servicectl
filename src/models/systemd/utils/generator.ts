@@ -1,5 +1,5 @@
 
-import { TemplateOptions } from '../types'
+import { TemplateOptions, SocketTemplateOptions } from '../types'
 
 export const generateServiceFile = async (service: TemplateOptions): Promise<string> => {
   return `[Unit]
@@ -31,5 +31,23 @@ MemoryAccounting=yes
 
 [Install]
 WantedBy=multi-user.target
+`
+}
+
+export const generateSocketFile = async (socket: SocketTemplateOptions): Promise<string> => {
+  return `[Unit]
+Description=Socket for worker of ${socket.Service}
+After=network.target
+
+[Socket]
+Accept=no
+${
+  Object.entries(socket).map(([key, value]) => {
+    return `${key}=${value}`
+  }).join('\n')
+}
+
+[Install]
+WantedBy = sockets.target
 `
 }

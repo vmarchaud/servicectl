@@ -12,7 +12,7 @@ import { SystemdManager, getManager, StartMode } from './utils/dbus'
 import { SimpleSystemdService } from './systemdService'
 import { ExecServiceCreator } from './creators/exec'
 import { ClusterServiceCreator } from './creators/cluster'
-import { ServiceCreator } from './creators/types'
+import { ServiceCreator, getServiceCreator } from './creators/types'
 
 export class SystemdBackend implements ServiceBackend {
 
@@ -35,11 +35,7 @@ export class SystemdBackend implements ServiceBackend {
     let creator: ServiceCreator
     switch (options.mode) {
       case ServiceMode.EXEC: {
-        creator = new ExecServiceCreator(options, this.mode)
-        break
-      }
-      case ServiceMode.CLUSTER: {
-        creator = new ClusterServiceCreator(options, this.mode)
+        creator = getServiceCreator(ExecServiceCreator, options, this.mode)
         break
       }
       default: {

@@ -34,3 +34,9 @@ export type TemplateOptions = {
   permissions: PermissionsTemplateOptions
   exec: ExecTemplateOptions
 }
+
+export type SocketTemplateOptions = {
+  ReusePort: boolean
+  ListenStream: number
+  Service: string
+}

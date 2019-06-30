@@ -9,11 +9,17 @@ export type ServiceCreatorFile = {
   content: string
 }
 
-export interface ServiceCreator {
+export interface ServiceCreatorConstructor {
+  new (options: ServiceCreateOptions, mode: ServiceAPIMode): ServiceCreator
+}
 
-  // new (options: ServiceCreateOptions, mode: ServiceAPIMode)
+export interface ServiceCreator {
 
   generateFiles (): Promise<ServiceCreatorFile[]>
 
   start (manager: SystemdManager): Promise<Service[]>
+}
+
+export const getServiceCreator = (Impl: ServiceCreatorConstructor, options: ServiceCreateOptions, mode: ServiceAPIMode) => {
+  return new Impl(options, mode)
 }

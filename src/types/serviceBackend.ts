@@ -12,6 +12,7 @@ export type ServiceCreateOptions = {
   interpreter?: string
   mode: ServiceMode
   count?: number
+  port?: number
 }
 
 export type RetrieveLogsOptions = {
