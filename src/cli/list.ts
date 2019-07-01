@@ -2,7 +2,7 @@
 import { Command, flags } from '@oclif/command'
 import { ServiceAPI, ServiceAPIMode } from '../api'
 import { cli } from 'cli-ux'
-import { Service } from '../types/service'
+import { Service, ServiceMode } from '../types/service'
 import * as async from 'async'
 
 export default class ListCommand extends Command {
@@ -18,7 +18,9 @@ export default class ListCommand extends Command {
   static headers = {
     name: {
       minWidth: 7,
-      get: (service: Service) => service.name
+      get: (service: Service) => {
+        return service.mode === ServiceMode.EXEC ? service.name : `${service.name}@${service.instance}`
+      }
     },
     state: {
       get: (service: Service) => service.state

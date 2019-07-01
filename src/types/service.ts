@@ -54,7 +54,7 @@ export interface Service {
   description: string
   name: string
   mode: ServiceMode
-  instance: number
+  instance: string
 
   timestamps: ServiceTimestamps
 }

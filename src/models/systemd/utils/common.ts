@@ -4,7 +4,7 @@ import * as fs from 'fs'
 import { ServiceAPIMode } from '../../../api'
 import { PermissionsTemplateOptions } from '../types'
 
-const getInterpreterByExtension = (extension: string): string | undefined => {
+export const getInterpreterByExtension = (extension: string): string | undefined => {
   const map = {
     '.js': 'node',
     '.php': 'php',

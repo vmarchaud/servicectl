@@ -13,9 +13,9 @@ export class SimpleSystemdService implements Service {
   pid: number
   description: string
   state: ServiceState
-  mode = ServiceMode.EXEC
+  mode: ServiceMode = ServiceMode.EXEC
   timestamps: ServiceTimestamps
-  instance = 0
+  instance
 
   constructor (dbusObject: SystemdService) {
     this.dbusObject = dbusObject
@@ -99,6 +99,13 @@ export class SimpleSystemdService implements Service {
   async _load () {
     const name: string = await fetchProperty(this.dbusObject, SystemdInterfacesType.UNIT, 'Id')
     this.name = name.replace('servicectl.', '').replace('.service', '')
+    const instanceNameRegex = /@([0-9])./.exec(name)
+    if (instanceNameRegex !== null && instanceNameRegex[1].length > 0) {
+      const instanceName = instanceNameRegex[1]
+      this.instance = instanceNameRegex[1]
+      this.name = this.name.replace(`@${instanceName}`, '')
+      this.mode = ServiceMode.CLUSTER
+    }
     this.pid = await fetchProperty(this.dbusObject, SystemdInterfacesType.SERVICE, 'MainPID')
     this.description = await fetchProperty(this.dbusObject, SystemdInterfacesType.UNIT, 'Description')
     this.state = await fetchProperty(this.dbusObject, SystemdInterfacesType.UNIT, 'ActiveState')

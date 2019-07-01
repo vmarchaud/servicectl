@@ -37,7 +37,6 @@ WantedBy=multi-user.target
 export const generateSocketFile = async (socket: SocketTemplateOptions): Promise<string> => {
   return `[Unit]
 Description=Socket for worker of ${socket.Service}
-After=network.target
 
 [Socket]
 Accept=no
@@ -48,6 +47,6 @@ ${
 }
 
 [Install]
-WantedBy = sockets.target
+WantedBy=sockets.target
 `
 }

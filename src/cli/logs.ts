@@ -27,7 +27,7 @@ export default class LogsCommand extends Command {
     const { args, flags } = this.parse(LogsCommand)
     const api = await ServiceAPI.init(ServiceAPIMode.USER)
     const { error, output } = await api.retrieveLogs(args.name, {
-      limit: flags.lines,
+      limit: flags.lines || 15,
       follow: false
     })
     error.forEach(line => console.error(`[ERROR] ${line}`))

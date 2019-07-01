@@ -4,6 +4,7 @@ export type ServiceRestartBehavior = 'no' | 'always' | 'on-success' | 'on-failur
 
 export type UnitTemplateOptions = {
   Description: string
+  Requires?: string
 }
 
 export type ServiceTemplateOptions = {

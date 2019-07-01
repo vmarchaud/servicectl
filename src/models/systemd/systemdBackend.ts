@@ -6,9 +6,8 @@ import {
 } from '../../types/serviceBackend'
 import { Service, ServiceMode } from '../../types/service'
 import { ServiceAPIMode } from '../../api'
-import * as path from 'path'
 import * as fs from 'fs'
-import { SystemdManager, getManager, StartMode } from './utils/dbus'
+import { SystemdManager, getManager } from './utils/dbus'
 import { SimpleSystemdService } from './systemdService'
 import { ExecServiceCreator } from './creators/exec'
 import { ClusterServiceCreator } from './creators/cluster'
@@ -36,6 +35,10 @@ export class SystemdBackend implements ServiceBackend {
     switch (options.mode) {
       case ServiceMode.EXEC: {
         creator = getServiceCreator(ExecServiceCreator, options, this.mode)
+        break
+      }
+      case ServiceMode.CLUSTER: {
+        creator = getServiceCreator(ClusterServiceCreator, options, this.mode)
         break
       }
       default: {
@@ -69,7 +72,9 @@ export class SystemdBackend implements ServiceBackend {
 
   async get (name: string): Promise<Service> {
     const units = await this.backend.ListUnits()
-    const rawService = units.find(unit => unit[0].indexOf(`servicectl.${name}`) !== -1)
+    const rawService = units.find(unit => {
+      return unit[0].indexOf(`servicectl.${name}`) !== -1 && unit[0].indexOf(`.service`)
+    })
     if (rawService === undefined) {
       throw new Error(`Service name ${name} not found on the system`)
     }
@@ -84,7 +89,9 @@ export class SystemdBackend implements ServiceBackend {
 
   async list (): Promise<Service[]> {
     const units = await this.backend.ListUnits()
-    const rawServices = units.filter(unit => unit[0].indexOf('servicectl') !== -1)
+    const rawServices = units
+      .filter(unit => unit[0].indexOf('servicectl') !== -1)
+      .filter(unit => unit[0].indexOf('.service') !== -1)
     const services: Service[] = []
 
     await Promise.all(rawServices.map(async unit => {

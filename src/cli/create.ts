@@ -19,6 +19,9 @@ export default class CreateCommand extends Command {
     }),
     instances: flags.integer({
       description: 'Choose how many application instances will be launched'
+    }),
+    port: flags.integer({
+      description: 'If using cluster mode, on which port you want the cluster to listen'
     })
   }
 
@@ -42,7 +45,8 @@ export default class CreateCommand extends Command {
       script: scriptPath,
       interpreter: flags.interpreter,
       mode: flags.instances ? ServiceMode.CLUSTER : ServiceMode.EXEC,
-      count: flags.instances
+      count: flags.instances,
+      port: flags.port
     })
     const servicesWithUsage = await ListCommand.getUsageForServices(services)
     cli.table(servicesWithUsage, ListCommand.headers)
