@@ -4,6 +4,9 @@ import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType } 
 import * as fs from 'fs'
 import { getLogsPath } from './utils/common'
 import { RetrieveLogsOptions } from '../../types/serviceBackend'
+import of from 'await-of'
+import { promisify } from 'util'
+const fsStats = promisify(fs.stat)
 
 export class SimpleSystemdService implements Service {
 
@@ -43,16 +46,23 @@ export class SimpleSystemdService implements Service {
     let outLines: string[] = []
     let errorLines: string[] = []
 
-    await Promise.all(filesType.map((type) => {
+    await Promise.all(filesType.map(async (type) => {
       let path: string
       if (this.instance.length > 0) {
         path = `${logsPath}/${this.name}.${type}.${this.instance}.log`
       } else {
         path = `${logsPath}/${this.name}.${type}.log`
       }
-      const size = fs.statSync(path).size
+      const [ stats, err ] = await of(fsStats(path))
+      if (err) {
+        return {
+          output: [],
+          error: [],
+          service: this
+        }
+      }
       const stream = fs.createReadStream(path, {
-        start: size - (options.limit * 100)
+        start: stats.size - (options.limit * 100)
       })
       return new Promise((resolve, reject) => {
         const chunks: string[] = []

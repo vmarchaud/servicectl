@@ -9,6 +9,7 @@
     "@oclif/config": "^1.12.12",
     "@oclif/plugin-help": "^2.1.6",
     "async": "^3.0.1",
+    "await-of": "^1.2.0",
     "dbus-next": "^0.5.1",
     "luxon": "^1.16.0"
   },
