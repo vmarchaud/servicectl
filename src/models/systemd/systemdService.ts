@@ -15,7 +15,7 @@ export class SimpleSystemdService implements Service {
   state: ServiceState
   mode: ServiceMode = ServiceMode.EXEC
   timestamps: ServiceTimestamps
-  instance
+  instance: string = ''
 
   constructor (dbusObject: SystemdService) {
     this.dbusObject = dbusObject
@@ -44,21 +44,26 @@ export class SimpleSystemdService implements Service {
     let errorLines: string[] = []
 
     await Promise.all(filesType.map((type) => {
-      const path = `${logsPath}/${this.name}.${type}.log`
+      let path: string
+      if (this.instance.length > 0) {
+        path = `${logsPath}/${this.name}.${type}.${this.instance}.log`
+      } else {
+        path = `${logsPath}/${this.name}.${type}.log`
+      }
       const size = fs.statSync(path).size
       const stream = fs.createReadStream(path, {
         start: size - (options.limit * 100)
       })
       return new Promise((resolve, reject) => {
         const chunks: string[] = []
-        stream.on('data', (chunk) => chunks.push(chunk))
+        stream.on('data', (chunk) => chunks.push(chunk.toString()))
         stream.on('error', reject)
         stream.on('close', () => {
           const lines: string[] = chunks.join('').split('\n').filter(line => line.length > 0)
           if (type === 'out') {
-            outLines = lines.slice(lines.length - 1 - options.limit, lines.length - 1)
+            outLines = lines.slice(lines.length - options.limit, lines.length)
           } else {
-            errorLines = lines.slice(lines.length - 1 - options.limit, lines.length - 1)
+            errorLines = lines.slice(lines.length - options.limit, lines.length)
           }
           return resolve()
         })
@@ -66,7 +71,8 @@ export class SimpleSystemdService implements Service {
     }))
     return {
       output: outLines,
-      error: errorLines
+      error: errorLines,
+      service: this
     }
   }
 

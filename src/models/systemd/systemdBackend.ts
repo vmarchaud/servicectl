@@ -60,30 +60,35 @@ export class SystemdBackend implements ServiceBackend {
     return services
   }
 
-  async start (name: string): Promise<Service> {
+  async start (name: string): Promise<Service[]> {
     throw new Error('Method not implemented.')
   }
 
-  async restart (name: string): Promise<Service> {
-    const service = await this.get(name)
-    await service.restart()
-    return service
+  async restart (name: string): Promise<Service[]> {
+    const services = await this.get(name)
+    await Promise.all(services.map(service => service.restart()))
+    return services
   }
 
-  async get (name: string): Promise<Service> {
+  async get (name: string): Promise<Service[]> {
     const units = await this.backend.ListUnits()
-    const rawService = units.find(unit => {
-      return unit[0].indexOf(`servicectl.${name}`) !== -1 && unit[0].indexOf(`.service`)
-    })
-    if (rawService === undefined) {
+    const rawServices = units
+      .filter(unit => unit[0].indexOf('servicectl') !== -1)
+      .filter(unit => unit[0].indexOf('.service') !== -1)
+    if (rawServices.length === 0) {
       throw new Error(`Service name ${name} not found on the system`)
     }
-    const object = await this.backend.bus.getProxyObject('org.freedesktop.systemd1', rawService[6])
-    const service = await SimpleSystemdService.fromSystemdObject(this.backend, object)
-    return service
+    const services: Service[] = []
+
+    await Promise.all(rawServices.map(async unit => {
+      const object = await this.backend.bus.getProxyObject('org.freedesktop.systemd1', unit[6])
+      const service = await SimpleSystemdService.fromSystemdObject(this.backend, object)
+      services.push(service)
+    }))
+    return services
   }
 
-  async stop (name: string): Promise<Service> {
+  async stop (name: string): Promise<Service[]> {
     throw new Error('Method not implemented.')
   }
 

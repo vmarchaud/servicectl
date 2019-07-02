@@ -36,8 +36,10 @@ export class ServiceAPI {
   }
 
   async restart (name: string) {
-    const service = await this.backend.restart(name)
-    console.log(`Restarted ${service.name}, pid: ${service.pid}`)
+    const services = await this.backend.restart(name)
+    services.forEach(service => {
+      console.log(`Restarted ${service.name}, pid: ${service.pid}`)
+    })
   }
 
   async list () {
@@ -50,9 +52,13 @@ export class ServiceAPI {
     return service
   }
 
-  async retrieveLogs (name: string, options: RetrieveLogsOptions): Promise<ServiceLogs> {
-    const service = await this.backend.get(name)
-    const logs = await service.logs(options)
-    return logs
+  async retrieveLogs (name: string, options: RetrieveLogsOptions): Promise<ServiceLogs[]> {
+    const services = await this.backend.get(name)
+    const serviceLogs: ServiceLogs[] = []
+    await Promise.all(services.map(async service => {
+      const serviceLog = await service.logs(options)
+      serviceLogs.push(serviceLog)
+    }))
+    return serviceLogs
   }
 }

@@ -18,6 +18,11 @@ export type ServiceCreateOptions = {
 export type RetrieveLogsOptions = {
   limit: number
   follow: boolean
+  /**
+   * If we ask to follow the logs, we will callback when a new line
+   * is emitted
+   */
+  followCallback?: (line: string, service: Service) => void
 }
 
 export interface ServiceBackend {
@@ -26,10 +31,10 @@ export interface ServiceBackend {
   destroy (): Promise<void>
 
   create (options: ServiceCreateOptions): Promise<Service[]>
-  start (name: string): Promise<Service>
-  restart (name: string): Promise<Service>
-  stop (name: string): Promise<Service>
+  start (name: string): Promise<Service[]>
+  restart (name: string): Promise<Service[]>
+  stop (name: string): Promise<Service[]>
 
-  get (name: string): Promise<Service>
+  get (name: string): Promise<Service[]>
   list (): Promise<Service[]>
 }

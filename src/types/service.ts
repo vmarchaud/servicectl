@@ -31,6 +31,7 @@ export type ServiceTimestamps = {
 export type ServiceLogs = {
   output: string[]
   error: string[]
+  service: Service
 }
 
 export interface Service {

@@ -26,12 +26,21 @@ export default class LogsCommand extends Command {
   async run () {
     const { args, flags } = this.parse(LogsCommand)
     const api = await ServiceAPI.init(ServiceAPIMode.USER)
-    const { error, output } = await api.retrieveLogs(args.name, {
+    const serviceLogs = await api.retrieveLogs(args.name, {
       limit: flags.lines || 15,
       follow: false
     })
-    error.forEach(line => console.error(`[ERROR] ${line}`))
-    output.forEach(line => console.log(`[OUT] ${line}`))
+    if (serviceLogs.length === 1) {
+      const { error, output } = serviceLogs[0]
+      error.forEach(line => console.error(`[ERROR] ${line}`))
+      output.forEach(line => console.log(`[OUT] ${line}`))
+    } else {
+      serviceLogs.forEach(serviceLog => {
+        const { error, output, service } = serviceLog
+        error.forEach(line => console.error(`[${service.instance}] [ERROR] ${line}`))
+        output.forEach(line => console.log(`[${service.instance}] [OUT] ${line}`))
+      })
+    }
     await api.destroy()
   }
 }
