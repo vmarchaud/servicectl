@@ -37,9 +37,7 @@ export class ServiceAPI {
 
   async restart (name: string) {
     const services = await this.backend.restart(name)
-    services.forEach(service => {
-      console.log(`Restarted ${service.name}, pid: ${service.pid}`)
-    })
+    return services
   }
 
   async list () {

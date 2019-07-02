@@ -4,6 +4,7 @@ import { ServiceAPI, ServiceAPIMode } from '../api'
 import { cli } from 'cli-ux'
 import { Service, ServiceMode } from '../types/service'
 import * as async from 'async'
+import { DateTime } from 'luxon'
 
 export default class ListCommand extends Command {
   static description = 'List current loaded services'
@@ -19,7 +20,8 @@ export default class ListCommand extends Command {
     name: {
       minWidth: 7,
       get: (service: Service) => {
-        return service.mode === ServiceMode.EXEC ? service.name : `${service.name}@${service.instance}`
+        return service.mode === ServiceMode.EXEC
+          ? service.name : `${service.name}@${service.instance}`
       }
     },
     state: {
@@ -27,6 +29,13 @@ export default class ListCommand extends Command {
     },
     mode: {
       get: (service: Service) => service.mode
+    },
+    uptime: {
+      get: (service: Service) => {
+        return DateTime
+          .fromMillis(service.timestamps.startedAt)
+          .toRelative({ style : 'short' })
+      }
     },
     cpu: {
       header: 'CPU (%)'
