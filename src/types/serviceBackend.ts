@@ -1,9 +1,12 @@
 
 import { Service, ServiceMode } from './service'
-import { ServiceAPIMode } from '../api'
 
-export type BackendConfig = {
-  mode: ServiceAPIMode
+export type BackendConfig = {}
+
+export enum ServiceCreatePermissionMode {
+  USER = 'user',
+  NOBODY = 'nobody',
+  ROOT = 'root'
 }
 
 export type ServiceCreateOptions = {
@@ -12,7 +15,8 @@ export type ServiceCreateOptions = {
   interpreter?: string
   mode: ServiceMode
   count?: number
-  port?: number
+  port?: number,
+  permissionMode: ServiceCreatePermissionMode
 }
 
 export type RetrieveLogsOptions = {

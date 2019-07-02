@@ -1,12 +1,11 @@
 
-import { ServiceAPIMode } from '../../../api'
 import * as dbus from 'dbus-next'
 
 const connectDbus = () => {
   return dbus.systemBus()
 }
 
-export const getManager = async (mode: ServiceAPIMode): Promise<SystemdManager> => {
+export const getManager = async (): Promise<SystemdManager> => {
   const bus = connectDbus()
   const proxy = await bus.getProxyObject('org.freedesktop.systemd1', '/org/freedesktop/systemd1')
   const managerAPI = await proxy.getInterface('org.freedesktop.systemd1.Manager')

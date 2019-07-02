@@ -5,22 +5,18 @@ import {
   ServiceCreateOptions
 } from '../../types/serviceBackend'
 import { Service, ServiceMode } from '../../types/service'
-import { ServiceAPIMode } from '../../api'
 import * as fs from 'fs'
 import { SystemdManager, getManager } from './utils/dbus'
 import { SimpleSystemdService } from './systemdService'
-import { ExecServiceCreator } from './creators/exec'
-import { ClusterServiceCreator } from './creators/cluster'
-import { ServiceCreator, getServiceCreator } from './creators/types'
+import { getCreatorForMode } from './utils/common'
+import * as path from 'path'
 
 export class SystemdBackend implements ServiceBackend {
 
   private backend: SystemdManager
-  private mode: ServiceAPIMode
 
   async init (config: BackendConfig) {
-    this.mode = config.mode
-    this.backend = await getManager(this.mode)
+    this.backend = await getManager()
     return this
   }
 
@@ -31,22 +27,11 @@ export class SystemdBackend implements ServiceBackend {
   }
 
   async create (options: ServiceCreateOptions): Promise<Service[]> {
-    let creator: ServiceCreator
-    switch (options.mode) {
-      case ServiceMode.EXEC: {
-        creator = getServiceCreator(ExecServiceCreator, options, this.mode)
-        break
-      }
-      case ServiceMode.CLUSTER: {
-        creator = getServiceCreator(ClusterServiceCreator, options, this.mode)
-        break
-      }
-      default: {
-        throw new Error(`Invalid service mode specified: ${options.mode}`)
-      }
-    }
-
-    const files = await creator.generateFiles()
+    const creator = await getCreatorForMode(options.mode)
+    const scriptFilename = options.script.split(path.sep).pop()
+    const scriptName = scriptFilename ? scriptFilename.split('.').splice(0, 1)[0] : 'no-name'
+    const serviceName = options.name || scriptName
+    const files = await creator.generateFiles(serviceName, options)
     // create all files for given paths
     await Promise.all(files.map(async file => {
       const exists = fs.existsSync(file.path)
@@ -56,7 +41,7 @@ export class SystemdBackend implements ServiceBackend {
       fs.writeFileSync(file.path, file.content)
     }))
     // start them
-    const services = await creator.start(this.backend)
+    const services = await creator.start(serviceName, options, this.backend)
     return services
   }
 

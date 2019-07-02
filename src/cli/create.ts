@@ -1,10 +1,11 @@
 
 import { Command, flags } from '@oclif/command'
-import { ServiceAPI, ServiceAPIMode } from '../api'
+import { ServiceAPI } from '../api'
 import { cli } from 'cli-ux'
 import * as path from 'path'
 import ListCommand from './list'
 import { ServiceMode } from '../types/service'
+import { ServiceCreatePermissionMode } from '../types/serviceBackend'
 
 export default class CreateCommand extends Command {
   static description = 'register your application to the init system and run it'
@@ -36,7 +37,7 @@ export default class CreateCommand extends Command {
   async run () {
     const { args, flags } = this.parse(CreateCommand)
     const scriptPath = path.resolve(process.cwd(), args.filename)
-    const api = await ServiceAPI.init(ServiceAPIMode[(flags.as || 'user').toUpperCase()])
+    const api = await ServiceAPI.init()
     if (process.getuid() !== 0) {
       throw new Error(`You must use sudo with servicectl for it to work properly.`)
     }
@@ -46,7 +47,8 @@ export default class CreateCommand extends Command {
       interpreter: flags.interpreter,
       mode: flags.instances ? ServiceMode.CLUSTER : ServiceMode.EXEC,
       count: flags.instances,
-      port: flags.port
+      port: flags.port,
+      permissionMode: ServiceCreatePermissionMode[(flags.as || 'user').toUpperCase()]
     })
     const servicesWithUsage = await ListCommand.getUsageForServices(services)
     cli.table(servicesWithUsage, ListCommand.headers)

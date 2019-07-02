@@ -123,6 +123,10 @@ export class SimpleSystemdService implements Service {
     }
   }
 
+  async delete () {
+    throw new Error('Method not implemented.')
+  }
+
   async getProperty (name: string) {
     const value = await fetchProperty(this.dbusObject, SystemdInterfacesType.SERVICE, name)
     return value

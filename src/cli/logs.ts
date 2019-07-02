@@ -1,6 +1,6 @@
 
 import { Command, flags } from '@oclif/command'
-import { ServiceAPI, ServiceAPIMode } from '../api'
+import { ServiceAPI } from '../api'
 
 export default class LogsCommand extends Command {
   static description = 'Get the log from a service'
@@ -25,7 +25,7 @@ export default class LogsCommand extends Command {
 
   async run () {
     const { args, flags } = this.parse(LogsCommand)
-    const api = await ServiceAPI.init(ServiceAPIMode.USER)
+    const api = await ServiceAPI.init()
     const serviceLogs = await api.retrieveLogs(args.name, {
       limit: flags.lines || 15,
       follow: false

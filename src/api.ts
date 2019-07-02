@@ -3,12 +3,6 @@ import { platform } from 'os'
 import { SystemdBackend } from './models/systemd/systemdBackend'
 import { Service, ServiceLogs } from './types/service'
 
-export enum ServiceAPIMode {
-  USER = 'user',
-  NOBODY = 'nobody',
-  ROOT = 'root'
-}
-
 export class ServiceAPI {
 
   private backend: ServiceBackend
@@ -17,11 +11,11 @@ export class ServiceAPI {
     this.backend = backend
   }
 
-  static async init (mode: ServiceAPIMode) {
+  static async init () {
     let backend: ServiceBackend
     switch (platform().toString()) {
       case 'linux': {
-        backend = await new SystemdBackend().init({ mode })
+        backend = await new SystemdBackend().init({})
         break
       }
       default: {
@@ -58,5 +52,10 @@ export class ServiceAPI {
       serviceLogs.push(serviceLog)
     }))
     return serviceLogs
+  }
+
+  async delete (name: string): Promise<void> {
+    const services = await this.backend.get(name)
+    await Promise.all(services.map(service => service.delete()))
   }
 }

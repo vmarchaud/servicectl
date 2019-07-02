@@ -1,6 +1,6 @@
 
 import { Command, flags } from '@oclif/command'
-import { ServiceAPI, ServiceAPIMode } from '../api'
+import { ServiceAPI } from '../api'
 import { cli } from 'cli-ux'
 import { Service, ServiceMode } from '../types/service'
 import * as async from 'async'
@@ -69,7 +69,7 @@ export default class ListCommand extends Command {
 
   async run () {
     const { args, flags } = this.parse(ListCommand)
-    const api = await ServiceAPI.init(ServiceAPIMode.USER)
+    const api = await ServiceAPI.init()
     const services = await api.list()
     const servicesWithUsage = await ListCommand.getUsageForServices(services)
     cli.table(servicesWithUsage, ListCommand.headers, { ...flags })

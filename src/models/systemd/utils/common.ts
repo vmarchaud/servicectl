@@ -1,8 +1,12 @@
 
 import * as path from 'path'
 import * as fs from 'fs'
-import { ServiceAPIMode } from '../../../api'
 import { PermissionsTemplateOptions } from '../types'
+import { ServiceMode } from '../../../types/service'
+import { ExecServiceCreator } from '../creators/exec'
+import { ClusterServiceCreator } from '../creators/cluster'
+import { ServiceCreator } from '../creators/types'
+import { ServiceCreatePermissionMode } from '../../../types/serviceBackend'
 
 export const getInterpreterByExtension = (extension: string): string | undefined => {
   const map = {
@@ -95,9 +99,9 @@ export const mkdirRecursive = (targetDir: string) => {
 /**
  * Depending on the mode of the cli, compute the exec options of the service
  */
-export const getPermissionsOptions = (mode: ServiceAPIMode): PermissionsTemplateOptions => {
+export const getPermissionsOptions = (mode: ServiceCreatePermissionMode): PermissionsTemplateOptions => {
   switch (mode) {
-    case ServiceAPIMode.USER: {
+    case ServiceCreatePermissionMode.USER: {
       if (process.env.USER === 'root' && process.env.SUDO_UID === undefined) {
         return {
           User: 0,
@@ -114,14 +118,35 @@ export const getPermissionsOptions = (mode: ServiceAPIMode): PermissionsTemplate
         Group: parseInt(group, 10)
       }
     }
-    case ServiceAPIMode.NOBODY: {
+    case ServiceCreatePermissionMode.NOBODY: {
       return { DynamicUser: true }
     }
-    case ServiceAPIMode.ROOT: {
+    case ServiceCreatePermissionMode.ROOT: {
       return {
         User: 0,
         Group: 0
       }
     }
   }
+}
+
+/**
+ * Get instance of a service creator depending on the service mode (exec or cluster)
+ */
+export const getCreatorForMode = async (mode: ServiceMode): Promise<ServiceCreator> => {
+  let creator: ServiceCreator
+  switch (mode) {
+    case ServiceMode.EXEC: {
+      creator = new ExecServiceCreator()
+      break
+    }
+    case ServiceMode.CLUSTER: {
+      creator = new ClusterServiceCreator()
+      break
+    }
+    default: {
+      throw new Error(`Invalid service mode specified: ${mode}`)
+    }
+  }
+  return creator
 }

@@ -9,27 +9,13 @@ import {
   getPermissionsOptions,
   getLogsPath
 } from '../utils/common'
-import { ServiceAPIMode } from '../../../api'
 import * as path from 'path'
 import { StartMode, SystemdManager } from '../utils/dbus'
 import { SimpleSystemdService } from '../systemdService'
 
 export class ExecServiceCreator implements ServiceCreator {
 
-  private options: ServiceCreateOptions
-  private serviceName: string
-  private mode: ServiceAPIMode
-
-  constructor (options: ServiceCreateOptions, mode: ServiceAPIMode) {
-    this.options = options
-    this.mode = mode
-    const scriptFilename = options.script.split(path.sep).pop()
-    const scriptName = scriptFilename ? scriptFilename.split('.').splice(0, 1)[0] : 'no-name'
-    this.serviceName = options.name || scriptName
-  }
-
-  async generateFiles () {
-    const options = this.options
+  async generateFiles (serviceName: string, options: ServiceCreateOptions) {
     const interpreter = options.interpreter ? options.interpreter : await locateInterpreterForFile(options.script)
     const logsPath = await getLogsPath()
     mkdirRecursive(logsPath)
@@ -42,16 +28,16 @@ export class ExecServiceCreator implements ServiceCreator {
       unit: {
         Description: 'Service managed by servicectl'
       },
-      permissions: getPermissionsOptions(this.mode),
+      permissions: getPermissionsOptions(options.permissionMode),
       exec: {
-        StandardOutput: `append:${logsPath}${path.sep}${this.serviceName}.out.log`,
-        StandardError: `append:${logsPath}${path.sep}${this.serviceName}.err.log`
+        StandardOutput: `append:${logsPath}${path.sep}${serviceName}.out.log`,
+        StandardError: `append:${logsPath}${path.sep}${serviceName}.err.log`
       }
     })
     const repositoryPath = await getRepositoryPath()
     // be sure that the paths exist
     mkdirRecursive(repositoryPath)
-    const serviceFilename = `servicectl.${this.serviceName}.service`
+    const serviceFilename = `servicectl.${serviceName}.service`
     const serviceFilepath = path.resolve(repositoryPath, serviceFilename)
     return [
       {
@@ -61,8 +47,8 @@ export class ExecServiceCreator implements ServiceCreator {
     ]
   }
 
-  async start (manager: SystemdManager) {
-    const serviceFilename = `servicectl.${this.serviceName}.service`
+  async start (serviceName: string, options: ServiceCreateOptions, manager: SystemdManager) {
+    const serviceFilename = `servicectl.${serviceName}.service`
     await manager.Reload()
     await manager.StartUnit(serviceFilename, StartMode.REPLACE)
     const service = await SimpleSystemdService.fromSystemd(manager, serviceFilename)

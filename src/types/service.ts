@@ -40,6 +40,7 @@ export interface Service {
   stop (): Promise<Service>
   restart (): Promise<Service>
   kill (code: number): Promise<Service>
+  delete (): Promise<void>
 
   logs (options: RetrieveLogsOptions): Promise<ServiceLogs>
 

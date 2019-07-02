@@ -7,43 +7,28 @@ import {
   getRepositoryPath,
   mkdirRecursive,
   getPermissionsOptions,
-  getLogsPath,
-  getInterpreterByExtension
+  getLogsPath
 } from '../utils/common'
-import { ServiceAPIMode } from '../../../api'
 import * as path from 'path'
 import { StartMode, SystemdManager } from '../utils/dbus'
 import { SimpleSystemdService } from '../systemdService'
 import { Service } from '../../../types/service'
-import { createConnection } from 'net'
 
 export class ClusterServiceCreator implements ServiceCreator {
 
-  private options: ServiceCreateOptions
-  private serviceName: string
-  private mode: ServiceAPIMode
-
-  constructor (options: ServiceCreateOptions, mode: ServiceAPIMode) {
-    this.options = options
-    this.mode = mode
-    const scriptFilename = options.script.split(path.sep).pop()
-    const scriptName = scriptFilename ? scriptFilename.split('.').splice(0, 1)[0] : 'no-name'
-    this.serviceName = options.name || scriptName
-  }
-
-  private async generateSocketFile (): Promise<ServiceCreatorFile> {
-    if (this.options.port === undefined) {
+  private async generateSocketFile (serviceName: string, options: ServiceCreateOptions): Promise<ServiceCreatorFile> {
+    if (options.port === undefined) {
       throw new Error(`You must define the port you want to use when using the cluster mode`)
     }
     const fileContent = await generateSocketFile({
-      Service: `servicectl.${this.serviceName}@%i.service`,
+      Service: `servicectl.${serviceName}@%i.service`,
       ReusePort: true,
-      ListenStream: this.options.port
+      ListenStream: options.port
     })
     const repositoryPath = await getRepositoryPath()
     // be sure that the paths exist
     mkdirRecursive(repositoryPath)
-    const socketFilename = `servicectl.${this.serviceName}@.socket`
+    const socketFilename = `servicectl.${serviceName}@.socket`
     const socketFilepath = path.resolve(repositoryPath, socketFilename)
     return {
       path: socketFilepath,
@@ -51,8 +36,7 @@ export class ClusterServiceCreator implements ServiceCreator {
     }
   }
 
-  async generateServiceFile (): Promise<ServiceCreatorFile> {
-    const options = this.options
+  async generateServiceFile (serviceName: string, options: ServiceCreateOptions): Promise<ServiceCreatorFile> {
     const interpreter = options.interpreter ? options.interpreter : await locateInterpreterForFile(options.script)
     const logsPath = await getLogsPath()
     mkdirRecursive(logsPath)
@@ -69,18 +53,18 @@ export class ClusterServiceCreator implements ServiceCreator {
       },
       unit: {
         Description: 'Service managed by servicectl (instance: %i)',
-        Requires: `servicectl.${this.serviceName}@%i.socket`
+        Requires: `servicectl.${serviceName}@%i.socket`
       },
-      permissions: getPermissionsOptions(this.mode),
+      permissions: getPermissionsOptions(options.permissionMode),
       exec: {
-        StandardOutput: `append:${logsPath}${path.sep}${this.serviceName}.out.%i.log`,
-        StandardError: `append:${logsPath}${path.sep}${this.serviceName}.err.%i.log`
+        StandardOutput: `append:${logsPath}${path.sep}${serviceName}.out.%i.log`,
+        StandardError: `append:${logsPath}${path.sep}${serviceName}.err.%i.log`
       }
     })
     const repositoryPath = await getRepositoryPath()
     // be sure that the paths exist
     mkdirRecursive(repositoryPath)
-    const serviceFilename = `servicectl.${this.serviceName}@.service`
+    const serviceFilename = `servicectl.${serviceName}@.service`
     const serviceFilepath = path.resolve(repositoryPath, serviceFilename)
     return {
       path: serviceFilepath,
@@ -88,21 +72,21 @@ export class ClusterServiceCreator implements ServiceCreator {
     }
   }
 
-  async generateFiles () {
-    const serviceFile = await this.generateServiceFile()
-    const socketFile = await this.generateSocketFile()
+  async generateFiles (serviceName: string, options: ServiceCreateOptions) {
+    const serviceFile = await this.generateServiceFile(serviceName, options)
+    const socketFile = await this.generateSocketFile(serviceName, options)
     return [ serviceFile, socketFile ]
   }
 
-  async start (manager: SystemdManager) {
-    if (this.options.port === undefined) {
+  async start (serviceName: string, options: ServiceCreateOptions, manager: SystemdManager) {
+    if (options.port === undefined) {
       throw new Error(`You must define the port you want to use when using the cluster mode`)
     }
-    if (this.options.count === undefined) this.options.count = 1
+    if (options.count === undefined) options.count = 1
     const services: Service[] = []
-    for (let i = 0; i < this.options.count; i++) {
-      const socketFilename = `servicectl.${this.serviceName}@${i}.socket`
-      const serviceFilename = `servicectl.${this.serviceName}@${i}.service`
+    for (let i = 0; i < options.count; i++) {
+      const socketFilename = `servicectl.${serviceName}@${i}.socket`
+      const serviceFilename = `servicectl.${serviceName}@${i}.service`
       await manager.Reload()
       await manager.StartUnit(socketFilename, StartMode.REPLACE)
       await manager.StartUnit(serviceFilename, StartMode.REPLACE)
