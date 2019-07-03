@@ -66,7 +66,8 @@ export class ClusterServiceCreator implements ServiceCreator {
       exec: {
         StandardOutput: `append:${logsPath}${path.sep}${serviceName}.out.%i.log`,
         StandardError: `append:${logsPath}${path.sep}${serviceName}.err.%i.log`
-      }
+      },
+      environment: options.environment
     })
     const repositoryPath = await getRepositoryPath()
     // be sure that the paths exist

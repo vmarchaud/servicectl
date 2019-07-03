@@ -9,6 +9,11 @@ export enum ServiceCreatePermissionMode {
   ROOT = 'root'
 }
 
+export type EnvironmentEntry = {
+  key: string
+  value: string
+}
+
 export type ServiceCreateOptions = {
   name?: string
   script: string
@@ -17,7 +22,8 @@ export type ServiceCreateOptions = {
   count?: number
   port?: number,
   arguments: string[],
-  permissionMode: ServiceCreatePermissionMode
+  permissionMode: ServiceCreatePermissionMode,
+  environment: EnvironmentEntry[]
 }
 
 export type RetrieveLogsOptions = {

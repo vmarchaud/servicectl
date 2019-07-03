@@ -5,7 +5,10 @@ import { cli } from 'cli-ux'
 import * as path from 'path'
 import ListCommand from './list'
 import { ServiceMode } from '../types/service'
-import { ServiceCreatePermissionMode } from '../types/serviceBackend'
+import {
+  ServiceCreatePermissionMode,
+  EnvironmentEntry
+} from '../types/serviceBackend'
 
 export default class CreateCommand extends Command {
   static description = 'register your application to the init system and run it'
@@ -26,6 +29,9 @@ export default class CreateCommand extends Command {
     }),
     name: flags.string({
       description: 'Choose a custom name of your service'
+    }),
+    'import-env': flags.boolean({
+      description: 'Import the current shell environment into the service'
     })
   }
 
@@ -50,6 +56,9 @@ export default class CreateCommand extends Command {
     const customArgvDelimiter = process.argv.findIndex(arg => arg === '--')
     const customArgv = customArgvDelimiter > -1
       ? process.argv.splice(customArgvDelimiter + 1, process.argv.length - customArgvDelimiter) : []
+    const currentEnv: EnvironmentEntry[] = Object.keys(process.env).map(key => {
+      return { key, value: process.env[key] || '' }
+    })
     const services = await api.create({
       name: flags.name,
       script: scriptPath,
@@ -58,7 +67,8 @@ export default class CreateCommand extends Command {
       count: flags.instances,
       port: flags.port,
       permissionMode: ServiceCreatePermissionMode[(flags.as || 'user').toUpperCase()],
-      arguments: customArgv
+      arguments: customArgv,
+      environment: flags['import-env'] ? currentEnv : []
     })
     const servicesWithUsage = await ListCommand.getUsageForServices(services)
     cli.table(servicesWithUsage, ListCommand.headers)

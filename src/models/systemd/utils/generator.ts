@@ -22,6 +22,11 @@ ${
   }).join('\n')
 }
 ${
+  service.environment.map(entry => {
+    return `Environment= ${entry.key}=${entry.value}`
+  }).join('\n')
+}
+${
   Object.entries(service.exec).map(([key, value]) => {
     return `${key}=${value}`
   }).join('\n')

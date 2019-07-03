@@ -1,3 +1,4 @@
+import { EnvironmentEntry } from '../../types/serviceBackend'
 
 export type ServiceType = 'simple' | 'exec' | 'forking' | 'oneshot' | 'dbus' | 'notify' | 'idle'
 export type ServiceRestartBehavior = 'no' | 'always' | 'on-success' | 'on-failure' | 'on-abnormal' | 'on-abort' | 'on-watchdog'
@@ -34,6 +35,7 @@ export type TemplateOptions = {
   service: ServiceTemplateOptions
   permissions: PermissionsTemplateOptions
   exec: ExecTemplateOptions
+  environment: EnvironmentEntry[]
 }
 
 export type SocketTemplateOptions = {
