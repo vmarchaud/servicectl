@@ -12,6 +12,10 @@ import {
 import * as path from 'path'
 import { StartMode, SystemdManager } from '../utils/dbus'
 import { SimpleSystemdService } from '../systemdService'
+import { promisify } from 'util'
+import * as fs from 'fs'
+import of from 'await-of'
+import { Service } from '../../../types/service'
 
 export class ExecServiceCreator implements ServiceCreator {
 
@@ -47,11 +51,26 @@ export class ExecServiceCreator implements ServiceCreator {
     ]
   }
 
-  async start (serviceName: string, options: ServiceCreateOptions, manager: SystemdManager) {
+  async removeFiles (service: Service) {
+    const repositoryPath = await getRepositoryPath()
+    const serviceFilename = `servicectl.${service.name}.service`
+    const serviceFilepath = path.resolve(repositoryPath, serviceFilename)
+    const [ _, err ] = await of(promisify(fs.unlink)(serviceFilepath))
+    // dont handle error, we just want to remove the file, fine if already the case
+  }
+
+  async enable (serviceName: string, options: ServiceCreateOptions, manager: SystemdManager) {
     const serviceFilename = `servicectl.${serviceName}.service`
     await manager.Reload()
     await manager.StartUnit(serviceFilename, StartMode.REPLACE)
     const service = await SimpleSystemdService.fromSystemd(manager, serviceFilename)
     return [ service ]
+  }
+
+  async disable (service: Service, manager: SystemdManager) {
+    const serviceFilename = `servicectl.${service.name}.service`
+    await manager.StopUnit(serviceFilename, StartMode.FAIL)
+    await manager.DisableUnitFiles([serviceFilename], false)
+    await manager.Reload()
   }
 }

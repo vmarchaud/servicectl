@@ -41,7 +41,7 @@ export class SystemdBackend implements ServiceBackend {
       fs.writeFileSync(file.path, file.content)
     }))
     // start them
-    const services = await creator.start(serviceName, options, this.backend)
+    const services = await creator.enable(serviceName, options, this.backend)
     return services
   }
 

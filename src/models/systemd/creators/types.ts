@@ -12,9 +12,9 @@ export interface ServiceCreator {
 
   generateFiles (serviceName: string, options: ServiceCreateOptions): Promise<ServiceCreatorFile[]>
 
-  start (serviceName: string, options: ServiceCreateOptions, manager: SystemdManager): Promise<Service[]>
+  enable (serviceName: string, options: ServiceCreateOptions, manager: SystemdManager): Promise<Service[]>
 
-  // removeFiles (): Promise<void>
+  removeFiles (service: Service): Promise<void>
 
-  // delete (serviceName: string, options: ServiceCreateOptions, manager: SystemdManager): Promise<void>
+  disable (service: Service, manager: SystemdManager): Promise<void>
 }

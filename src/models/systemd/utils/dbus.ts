@@ -77,6 +77,7 @@ export interface SystemdManager {
   ListJobs (): Promise<Array<any>>
 
   Reload (): Promise<void>
+  DisableUnitFiles (paths: string[], runtime: boolean): Promise<void>
 }
 
 export interface SystemdUnit {

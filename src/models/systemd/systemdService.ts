@@ -2,7 +2,7 @@
 import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState, ServiceTimestamps, ServiceLogs } from '../../types/service'
 import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType } from './utils/dbus'
 import * as fs from 'fs'
-import { getLogsPath } from './utils/common'
+import { getLogsPath, getCreatorForMode } from './utils/common'
 import { RetrieveLogsOptions } from '../../types/serviceBackend'
 import of from 'await-of'
 import { promisify } from 'util'
@@ -11,6 +11,7 @@ const fsStats = promisify(fs.stat)
 export class SimpleSystemdService implements Service {
 
   private dbusObject: SystemdService
+  private manager: SystemdManager
 
   name: string
   pid: number
@@ -20,8 +21,9 @@ export class SimpleSystemdService implements Service {
   timestamps: ServiceTimestamps
   instance: string = ''
 
-  constructor (dbusObject: SystemdService) {
+  constructor (dbusObject: SystemdService, manager: SystemdManager) {
     this.dbusObject = dbusObject
+    this.manager = manager
   }
 
   async start (): Promise<Service> {
@@ -134,7 +136,9 @@ export class SimpleSystemdService implements Service {
   }
 
   async delete () {
-    throw new Error('Method not implemented.')
+    const creator = await getCreatorForMode(this.mode)
+    await creator.disable(this, this.manager)
+    await creator.removeFiles(this)
   }
 
   async getProperty (name: string) {
@@ -149,7 +153,7 @@ export class SimpleSystemdService implements Service {
     const units = await manager.ListUnits()
     const unit = units.find(unit => unit[0] === service)
     const object = await manager.bus.getProxyObject('org.freedesktop.systemd1', unit[6])
-    const simpleService = new SimpleSystemdService(object)
+    const simpleService = new SimpleSystemdService(object, manager)
     await simpleService._load()
     return simpleService
   }
@@ -158,7 +162,7 @@ export class SimpleSystemdService implements Service {
    * Construct a SimpleSystemdService from the dbus object
    */
   static async fromSystemdObject (manager: SystemdManager, object: any): Promise<SimpleSystemdService> {
-    const simpleService = new SimpleSystemdService(object)
+    const simpleService = new SimpleSystemdService(object, manager)
     await simpleService._load()
     return simpleService
   }

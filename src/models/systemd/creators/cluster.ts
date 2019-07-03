@@ -13,6 +13,9 @@ import * as path from 'path'
 import { StartMode, SystemdManager } from '../utils/dbus'
 import { SimpleSystemdService } from '../systemdService'
 import { Service } from '../../../types/service'
+import { promisify } from 'util'
+import * as fs from 'fs'
+import of from 'await-of'
 
 export class ClusterServiceCreator implements ServiceCreator {
 
@@ -78,7 +81,18 @@ export class ClusterServiceCreator implements ServiceCreator {
     return [ serviceFile, socketFile ]
   }
 
-  async start (serviceName: string, options: ServiceCreateOptions, manager: SystemdManager) {
+  async removeFiles (service: Service) {
+    const repositoryPath = await getRepositoryPath()
+    const socketFilename = `servicectl.${service.name}@${service.instance}.socket`
+    const serviceFilename = `servicectl.${service.name}@${service.instance}.service`
+    const serviceFilepath = path.resolve(repositoryPath, serviceFilename)
+    const socketFilepath = path.resolve(repositoryPath, socketFilename)
+    // dont handle error, we just want to remove the file, fine if already the case
+    let ret = await of(promisify(fs.unlink)(serviceFilepath))
+    ret = await of(promisify(fs.unlink)(socketFilepath))
+  }
+
+  async enable (serviceName: string, options: ServiceCreateOptions, manager: SystemdManager) {
     if (options.port === undefined) {
       throw new Error(`You must define the port you want to use when using the cluster mode`)
     }
@@ -94,5 +108,13 @@ export class ClusterServiceCreator implements ServiceCreator {
       services.push(service)
     }
     return services
+  }
+
+  async disable (service: Service, manager: SystemdManager) {
+    const socketFilename = `servicectl.${service.name}@${service.instance}.socket`
+    const serviceFilename = `servicectl.${service.name}@${service.instance}.service`
+    await manager.StopUnit(serviceFilename, StartMode.REPLACE)
+    await manager.StopUnit(socketFilename, StartMode.REPLACE)
+    await manager.DisableUnitFiles([ serviceFilename, socketFilename ], false)
   }
 }
