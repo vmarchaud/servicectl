@@ -83,8 +83,8 @@ export class ClusterServiceCreator implements ServiceCreator {
 
   async removeFiles (service: Service) {
     const repositoryPath = await getRepositoryPath()
-    const socketFilename = `servicectl.${service.name}@${service.instance}.socket`
-    const serviceFilename = `servicectl.${service.name}@${service.instance}.service`
+    const socketFilename = `servicectl.${service.name}@.socket`
+    const serviceFilename = `servicectl.${service.name}@.service`
     const serviceFilepath = path.resolve(repositoryPath, serviceFilename)
     const socketFilepath = path.resolve(repositoryPath, socketFilename)
     // dont handle error, we just want to remove the file, fine if already the case

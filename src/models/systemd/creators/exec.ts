@@ -69,8 +69,8 @@ export class ExecServiceCreator implements ServiceCreator {
 
   async disable (service: Service, manager: SystemdManager) {
     const serviceFilename = `servicectl.${service.name}.service`
-    await manager.StopUnit(serviceFilename, StartMode.FAIL)
-    await manager.DisableUnitFiles([serviceFilename], false)
+    await of(manager.StopUnit(serviceFilename, StartMode.FAIL))
+    await of(manager.DisableUnitFiles([serviceFilename], false))
     await manager.Reload()
   }
 }

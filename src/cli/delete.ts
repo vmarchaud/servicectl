@@ -13,7 +13,7 @@ export default class DeleteCommand extends Command {
     {
       name: 'name',
       required: true,
-      description: 'Name of the service you want to fetch logs from'
+      description: 'Name of the service you want to delete'
     }
   ]
 
