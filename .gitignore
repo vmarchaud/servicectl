@@ -17,3 +17,5 @@ coverage/
 **~
 build/
 test.js
+tmp/
+dist/
