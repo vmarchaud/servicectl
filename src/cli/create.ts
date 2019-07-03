@@ -19,10 +19,13 @@ export default class CreateCommand extends Command {
       description: 'Choose permission to assign to the service (either user (default), nobody or root)'
     }),
     instances: flags.integer({
-      description: 'Choose how many application instances will be launched'
+      description: 'Choose how many instances of the service will be launched'
     }),
     port: flags.integer({
       description: 'If using cluster mode, on which port you want the cluster to listen'
+    }),
+    name: flags.string({
+      description: 'Choose a custom name of your service'
     })
   }
 
@@ -48,6 +51,7 @@ export default class CreateCommand extends Command {
     const customArgv = customArgvDelimiter > -1
       ? process.argv.splice(customArgvDelimiter + 1, process.argv.length - customArgvDelimiter) : []
     const services = await api.create({
+      name: flags.name,
       script: scriptPath,
       interpreter: flags.interpreter,
       mode: flags.instances ? ServiceMode.CLUSTER : ServiceMode.EXEC,
