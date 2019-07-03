@@ -1,6 +1,6 @@
 
 import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState, ServiceTimestamps, ServiceLogs } from '../../types/service'
-import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType } from './utils/dbus'
+import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType, StartMode } from './utils/dbus'
 import * as fs from 'fs'
 import { getLogsPath, getCreatorForMode } from './utils/common'
 import { RetrieveLogsOptions } from '../../types/serviceBackend'
@@ -27,19 +27,27 @@ export class SimpleSystemdService implements Service {
   }
 
   async start (): Promise<Service> {
-    throw new Error('Method not implemented.')
+    await this.dbusObject.Start(StartMode.REPLACE)
+    await this._load()
+    return this
   }
 
   async stop (): Promise<Service> {
-    throw new Error('Method not implemented.')
+    await this.dbusObject.Stop(StartMode.REPLACE)
+    await this._load()
+    return this
   }
 
   async restart (): Promise<Service> {
-    throw new Error('Method not implemented.')
+    await this.dbusObject.Restart(StartMode.REPLACE)
+    await this._load()
+    return this
   }
 
   async kill (signal: number): Promise<Service> {
-    throw new Error('Method not implemented.')
+    this.dbusObject.Kill('servicectl', signal)
+    await this._load()
+    return this
   }
 
   async logs (options: RetrieveLogsOptions): Promise<ServiceLogs> {
@@ -152,7 +160,10 @@ export class SimpleSystemdService implements Service {
   static async fromSystemd (manager: SystemdManager, service: string): Promise<SimpleSystemdService> {
     const units = await manager.ListUnits()
     const unit = units.find(unit => unit[0] === service)
-    const object = await manager.bus.getProxyObject('org.freedesktop.systemd1', unit[6])
+    let object = await manager.bus.getProxyObject('org.freedesktop.systemd1', unit[6])
+    const unitMethods = await object.getInterface('org.freedesktop.systemd1.Unit')
+    const serviceMethods = await object.getInterface('org.freedesktop.systemd1.Service')
+    object = Object.assign(object, unitMethods, serviceMethods)
     const simpleService = new SimpleSystemdService(object, manager)
     await simpleService._load()
     return simpleService
@@ -162,6 +173,9 @@ export class SimpleSystemdService implements Service {
    * Construct a SimpleSystemdService from the dbus object
    */
   static async fromSystemdObject (manager: SystemdManager, object: any): Promise<SimpleSystemdService> {
+    const unitMethods = await object.getInterface('org.freedesktop.systemd1.Unit')
+    const serviceMethods = await object.getInterface('org.freedesktop.systemd1.Service')
+    object = Object.assign(object, unitMethods, serviceMethods)
     const simpleService = new SimpleSystemdService(object, manager)
     await simpleService._load()
     return simpleService
