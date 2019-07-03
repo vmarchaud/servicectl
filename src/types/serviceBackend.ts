@@ -26,7 +26,7 @@ export type RetrieveLogsOptions = {
    * If we ask to follow the logs, we will callback when a new line
    * is emitted
    */
-  followCallback?: (line: string, service: Service) => void
+  followCallback?: (line: string, type: string, service: Service) => void
 }
 
 export interface ServiceBackend {

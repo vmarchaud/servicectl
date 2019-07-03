@@ -31,7 +31,8 @@ export type ServiceTimestamps = {
 export type ServiceLogs = {
   output: string[]
   error: string[]
-  service: Service
+  service: Service,
+  cancelFollow?: Function
 }
 
 export interface Service {

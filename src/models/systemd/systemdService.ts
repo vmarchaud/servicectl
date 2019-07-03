@@ -2,7 +2,7 @@
 import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState, ServiceTimestamps, ServiceLogs } from '../../types/service'
 import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType, StartMode } from './utils/dbus'
 import * as fs from 'fs'
-import { getLogsPath, getCreatorForMode } from './utils/common'
+import { getLogsPath, getCreatorForMode, watchFileUpdate } from './utils/common'
 import { RetrieveLogsOptions } from '../../types/serviceBackend'
 import of from 'await-of'
 import { promisify } from 'util'
@@ -55,14 +55,18 @@ export class SimpleSystemdService implements Service {
     const filesType = [ 'out', 'err' ]
     let outLines: string[] = []
     let errorLines: string[] = []
-
-    await Promise.all(filesType.map(async (type) => {
+    const getLogPath = (type) => {
       let path: string
       if (this.instance.length > 0) {
         path = `${logsPath}/${this.name}.${type}.${this.instance}.log`
       } else {
         path = `${logsPath}/${this.name}.${type}.log`
       }
+      return path
+    }
+
+    await Promise.all(filesType.map(async (type) => {
+      const path = getLogPath(type)
       const [ stats, err ] = await of(fsStats(path))
       if (err) {
         return {
@@ -89,10 +93,23 @@ export class SimpleSystemdService implements Service {
         })
       })
     }))
+    // handle log follow
+    let cancelFollows: Function[] = []
+    if (options.follow && typeof options.followCallback === 'function') {
+      await Promise.all(filesType.map(async type => {
+        const cancel = await watchFileUpdate(getLogPath(type), (line: string) => {
+          // @ts-ignore will not be removed
+          options.followCallback(line, type, this)
+        })
+        cancelFollows.push(cancel)
+      }))
+    }
+    let cancelFollow = () => cancelFollows.forEach(fn => fn())
     return {
       output: outLines,
       error: errorLines,
-      service: this
+      service: this,
+      cancelFollow: cancelFollows.length > 0 ? cancelFollow : undefined
     }
   }
 
