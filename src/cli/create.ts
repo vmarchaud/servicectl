@@ -34,6 +34,8 @@ export default class CreateCommand extends Command {
     }
   ]
 
+  static strict = false
+
   async run () {
     const { args, flags } = this.parse(CreateCommand)
     const scriptPath = path.resolve(process.cwd(), args.filename)
@@ -42,13 +44,17 @@ export default class CreateCommand extends Command {
       throw new Error(`You must use sudo with servicectl for it to work properly.`)
     }
 
+    const customArgvDelimiter = process.argv.findIndex(arg => arg === '--')
+    const customArgv = customArgvDelimiter > -1
+      ? process.argv.splice(customArgvDelimiter + 1, process.argv.length - customArgvDelimiter) : []
     const services = await api.create({
       script: scriptPath,
       interpreter: flags.interpreter,
       mode: flags.instances ? ServiceMode.CLUSTER : ServiceMode.EXEC,
       count: flags.instances,
       port: flags.port,
-      permissionMode: ServiceCreatePermissionMode[(flags.as || 'user').toUpperCase()]
+      permissionMode: ServiceCreatePermissionMode[(flags.as || 'user').toUpperCase()],
+      arguments: customArgv
     })
     const servicesWithUsage = await ListCommand.getUsageForServices(services)
     cli.table(servicesWithUsage, ListCommand.headers)

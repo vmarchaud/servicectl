@@ -23,10 +23,14 @@ export class ExecServiceCreator implements ServiceCreator {
     const interpreter = options.interpreter ? options.interpreter : await locateInterpreterForFile(options.script)
     const logsPath = await getLogsPath()
     mkdirRecursive(logsPath)
+    let postArgs = ''
+    for (let i of options.arguments) {
+      postArgs += ` ${i}`
+    }
     const fileContent = await generateServiceFile({
       service: {
         Type: 'exec',
-        ExecStart: `${interpreter ? interpreter + ' ' : ''}${options.script}`,
+        ExecStart: `${interpreter ? interpreter + ' ' : ''}${options.script}${postArgs}`,
         Restart: 'on-failure'
       },
       unit: {

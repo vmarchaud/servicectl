@@ -43,15 +43,19 @@ export class ClusterServiceCreator implements ServiceCreator {
     const interpreter = options.interpreter ? options.interpreter : await locateInterpreterForFile(options.script)
     const logsPath = await getLogsPath()
     mkdirRecursive(logsPath)
-    let additionalArguments = ''
+    let preArgs = ''
     if (interpreter && interpreter.indexOf('node') > -1) {
-      additionalArguments += `-r ${path.join(__dirname, path.sep, 'cluster', path.sep, 'node-handle-socket.js')}`
-      additionalArguments += ' '
+      preArgs += `-r ${path.join(__dirname, path.sep, 'cluster', path.sep, 'node-handle-socket.js')}`
+      preArgs += ' '
+    }
+    let postArgs = ''
+    for (let i of options.arguments) {
+      postArgs += ` ${i}`
     }
     const fileContent = await generateServiceFile({
       service: {
         Type: 'exec',
-        ExecStart: `${interpreter ? interpreter + ' ' : ''}${additionalArguments}${options.script}`,
+        ExecStart: `${interpreter ? interpreter + ' ' : ''}${preArgs}${options.script}${postArgs}`,
         Restart: 'on-failure'
       },
       unit: {

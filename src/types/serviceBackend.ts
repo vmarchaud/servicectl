@@ -16,6 +16,7 @@ export type ServiceCreateOptions = {
   mode: ServiceMode
   count?: number
   port?: number,
+  arguments: string[],
   permissionMode: ServiceCreatePermissionMode
 }
 
