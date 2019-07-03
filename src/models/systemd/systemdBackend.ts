@@ -58,7 +58,7 @@ export class SystemdBackend implements ServiceBackend {
   async get (name: string): Promise<Service[]> {
     const units = await this.backend.ListUnits()
     const rawServices = units
-      .filter(unit => unit[0].indexOf('servicectl') !== -1)
+      .filter(unit => unit[0].indexOf(`servicectl.${name}`) !== -1)
       .filter(unit => unit[0].indexOf('.service') !== -1)
     if (rawServices.length === 0) {
       throw new Error(`Service name ${name} not found on the system`)

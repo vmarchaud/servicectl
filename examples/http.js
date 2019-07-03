@@ -1,5 +1,7 @@
 const http = require('http')
 
+console.log(process.env)
+
 const server = http.Server((req, res) => {
   let result = '';
 
