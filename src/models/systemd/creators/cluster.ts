@@ -56,7 +56,8 @@ export class ClusterServiceCreator implements ServiceCreator {
       service: {
         Type: 'exec',
         ExecStart: `${interpreter ? interpreter + ' ' : ''}${preArgs}${options.script}${postArgs}`,
-        Restart: 'on-failure'
+        Restart: 'on-failure',
+        EnvironmentFile: options.enviromentFile
       },
       unit: {
         Description: 'Service managed by servicectl (instance: %i)',

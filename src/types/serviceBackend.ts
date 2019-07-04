@@ -24,6 +24,7 @@ export type ServiceCreateOptions = {
   arguments: string[],
   permissionMode: ServiceCreatePermissionMode,
   environment: EnvironmentEntry[]
+  enviromentFile?: string
 }
 
 export type RetrieveLogsOptions = {

@@ -16,7 +16,8 @@ export type ServiceTemplateOptions = {
   ExecReload?: string
   ExecStop?: string
   RestartSec?: string
-  Restart: ServiceRestartBehavior
+  Restart: ServiceRestartBehavior,
+  EnvironmentFile?: string
 }
 
 export type PermissionsTemplateOptions = {

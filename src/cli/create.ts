@@ -37,6 +37,9 @@ export default class CreateCommand extends Command {
       description: 'Add custom environment varialbe into the service',
       multiple: true,
       char: 'e'
+    }),
+    'env-file': flags.string({
+      description: 'Specially a file from which environment will be loaded from'
     })
   }
 
@@ -83,7 +86,8 @@ export default class CreateCommand extends Command {
       port: flags.port,
       permissionMode: ServiceCreatePermissionMode[(flags.as || 'user').toUpperCase()],
       arguments: customArgv,
-      environment: flags['import-env'] ? Object.assign(currentEnv, customEnv) : customEnv
+      environment: flags['import-env'] ? Object.assign(currentEnv, customEnv) : customEnv,
+      enviromentFile: flags['env-file']
     })
     const servicesWithUsage = await ListCommand.getUsageForServices(services)
     cli.table(servicesWithUsage, ListCommand.headers)
