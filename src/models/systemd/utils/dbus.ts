@@ -1,5 +1,6 @@
 
 import * as dbus from 'dbus-next'
+import { Service } from '../../../types/service'
 
 const connectDbus = () => {
   return dbus.systemBus()
@@ -37,6 +38,14 @@ export const fetchProperty = async (object: any, _interface: string, property: s
   return typeof variant === 'object' ? variant.value : variant
 }
 
+export const getSocketForService = async (service: Service, manager: SystemdManager) => {
+  const socketName = `servicectl.${service.name}@${service.instance}.socket`
+  const units = await manager.ListUnits()
+  const unit = units.find(unit => unit[0] === socketName)
+  let object = await manager.bus.getProxyObject('org.freedesktop.systemd1', unit[6])
+  return object
+}
+
 export enum StartMode {
   REPLACE = 'replace',
   FAIL = 'fail',
@@ -47,7 +56,8 @@ export enum StartMode {
 
 export enum SystemdInterfacesType {
   UNIT = 'org.freedesktop.systemd1.Unit',
-  SERVICE = 'org.freedesktop.systemd1.Service'
+  SERVICE = 'org.freedesktop.systemd1.Service',
+  SOCKET = 'org.freedesktop.systemd1.Socket'
 }
 
 export interface SystemdManager {

@@ -1,6 +1,6 @@
 
 import { Service, ServiceLimit, ServiceUsage, ServiceProcesses, ServiceMode, ServiceState, ServiceTimestamps, ServiceLogs } from '../../types/service'
-import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType, StartMode } from './utils/dbus'
+import { SystemdManager, SystemdService, fetchProperty, SystemdInterfacesType, StartMode, getSocketForService } from './utils/dbus'
 import * as fs from 'fs'
 import { getLogsPath, getCreatorForMode, watchFileUpdate } from './utils/common'
 import { RetrieveLogsOptions } from '../../types/serviceBackend'
@@ -75,8 +75,9 @@ export class SimpleSystemdService implements Service {
           service: this
         }
       }
+      const start = stats.size - (options.limit * 100)
       const stream = fs.createReadStream(path, {
-        start: stats.size - (options.limit * 100)
+        start: start < 0 ? 0 : start
       })
       return new Promise((resolve, reject) => {
         const chunks: string[] = []

@@ -1,14 +1,14 @@
 import { RetrieveLogsOptions } from './serviceBackend'
 
 export type ServiceUsage = {
-  cpu: bigint,
-  memory: bigint,
+  cpu: bigint
+  memory: bigint
   tasks: number
 }
 
 export type ServiceLimit = {
-  cpu: number,
-  mem: number,
+  cpu: number
+  mem: number
   tasks: number
 }
 

@@ -32,6 +32,11 @@ export default class CreateCommand extends Command {
     }),
     'import-env': flags.boolean({
       description: 'Import the current shell environment into the service'
+    }),
+    env: flags.string({
+      description: 'Add custom environment varialbe into the service',
+      multiple: true,
+      char: 'e'
     })
   }
 
@@ -52,12 +57,22 @@ export default class CreateCommand extends Command {
     if (process.getuid() !== 0) {
       throw new Error(`You must use sudo with servicectl for it to work properly.`)
     }
-
+    console.log(flags.env)
     const customArgvDelimiter = process.argv.findIndex(arg => arg === '--')
     const customArgv = customArgvDelimiter > -1
       ? process.argv.splice(customArgvDelimiter + 1, process.argv.length - customArgvDelimiter) : []
     const currentEnv: EnvironmentEntry[] = Object.keys(process.env).map(key => {
       return { key, value: process.env[key] || '' }
+    })
+    const customEnv = (flags.env || []).filter(value => {
+      if (value.indexOf('=') === -1) {
+        console.error(`Invalid env value: ${value}, must contain '=', ignoring.`)
+        return false
+      }
+      return true
+    }).map(stringValue => {
+      const [ key, value ] = stringValue.split('=')
+      return { key, value }
     })
     const services = await api.create({
       name: flags.name,
@@ -68,7 +83,7 @@ export default class CreateCommand extends Command {
       port: flags.port,
       permissionMode: ServiceCreatePermissionMode[(flags.as || 'user').toUpperCase()],
       arguments: customArgv,
-      environment: flags['import-env'] ? currentEnv : []
+      environment: flags['import-env'] ? Object.assign(currentEnv, customEnv) : customEnv
     })
     const servicesWithUsage = await ListCommand.getUsageForServices(services)
     cli.table(servicesWithUsage, ListCommand.headers)
