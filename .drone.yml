@@ -10,7 +10,7 @@ steps:
   - node -v
   - yarn -v
   - uname -r
-  - yarn install
+  - yarn install --ignore-optional
   - export PATH=$PATH:./node_modules/.bin/
   - yarn test
   environment:
@@ -31,7 +31,7 @@ steps:
   - node -v
   - yarn -v
   - uname -r
-  - yarn install
+  - yarn install --ignore-optional
   - export PATH=$PATH:./node_modules/.bin/
   - yarn lint
   when:
