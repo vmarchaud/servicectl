@@ -1,0 +1,39 @@
+---
+
+kind: pipeline
+name: tests
+
+steps:
+- name: build
+  image: node:12-stretch
+  commands:
+  - node -v
+  - yarn -v
+  - uname -r
+  - yarn install
+  - export PATH=$PATH:./node_modules/.bin/
+  - yarn test
+  environment:
+    NODE_ENV: test
+  when:
+    event:
+    - push
+
+---
+
+kind: pipeline
+name: linter
+
+steps:
+- name: build
+  image: node:12
+  commands:
+  - node -v
+  - yarn -v
+  - uname -r
+  - yarn install
+  - export PATH=$PATH:./node_modules/.bin/
+  - yarn lint
+  when:
+    event:
+    - push

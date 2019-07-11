@@ -11,9 +11,12 @@ export class ServiceAPI {
     this.backend = backend
   }
 
-  static async init () {
+  static async init (currentPlatform?: NodeJS.Platform) {
     let backend: ServiceBackend
-    switch (platform().toString()) {
+    if (currentPlatform === undefined) {
+      currentPlatform = platform()
+    }
+    switch (currentPlatform) {
       case 'linux': {
         backend = await new SystemdBackend().init({})
         break

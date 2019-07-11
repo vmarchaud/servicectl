@@ -60,7 +60,6 @@ export default class CreateCommand extends Command {
     if (process.getuid() !== 0) {
       throw new Error(`You must use sudo with servicectl for it to work properly.`)
     }
-    console.log(flags.env)
     const customArgvDelimiter = process.argv.findIndex(arg => arg === '--')
     const customArgv = customArgvDelimiter > -1
       ? process.argv.splice(customArgvDelimiter + 1, process.argv.length - customArgvDelimiter) : []

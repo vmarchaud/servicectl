@@ -4,7 +4,7 @@ import {
   BackendConfig,
   ServiceCreateOptions
 } from '../../types/serviceBackend'
-import { Service, ServiceMode } from '../../types/service'
+import { Service } from '../../types/service'
 import * as fs from 'fs'
 import { SystemdManager, getManager } from './utils/dbus'
 import { SimpleSystemdService } from './systemdService'
