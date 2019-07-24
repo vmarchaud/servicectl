@@ -37,7 +37,10 @@ export class ExecServiceCreator implements ServiceCreator {
       unit: {
         Description: 'Service managed by servicectl'
       },
-      permissions: getPermissionsOptions(options.permissionMode),
+      permissions: typeof options.permissionMode === 'object' ? {
+        User: options.permissionMode.uid,
+        Group: options.permissionMode.gid
+      } : getPermissionsOptions(options.permissionMode),
       exec: {
         StandardOutput: `append:${logsPath}${path.sep}${serviceName}.out.log`,
         StandardError: `append:${logsPath}${path.sep}${serviceName}.err.log`

@@ -63,7 +63,10 @@ export class ClusterServiceCreator implements ServiceCreator {
         Description: 'Service managed by servicectl (instance: %i)',
         Requires: `servicectl.${serviceName}@%i.socket`
       },
-      permissions: getPermissionsOptions(options.permissionMode),
+      permissions: typeof options.permissionMode === 'object' ? {
+        User: options.permissionMode.uid,
+        Group: options.permissionMode.gid
+      } : getPermissionsOptions(options.permissionMode),
       exec: {
         StandardOutput: `append:${logsPath}${path.sep}${serviceName}.out.%i.log`,
         StandardError: `append:${logsPath}${path.sep}${serviceName}.err.%i.log`

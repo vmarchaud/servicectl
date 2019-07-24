@@ -20,11 +20,13 @@ export type ServiceCreateOptions = {
   interpreter?: string
   mode: ServiceMode
   count?: number
-  port?: number,
-  arguments: string[],
-  permissionMode: ServiceCreatePermissionMode,
+  port?: number
+  arguments: string[]
+  permissionMode: ServiceCreatePermissionMode | { gid: number, uid: number }
   environment: EnvironmentEntry[]
   enviromentFile?: string
+  standardOutPath?: string
+  standardErrPath?: string
 }
 
 export type RetrieveLogsOptions = {

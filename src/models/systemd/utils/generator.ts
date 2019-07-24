@@ -13,6 +13,7 @@ After=network.target
 [Service]
 ${
   Object.entries(service.service).map(([key, value]) => {
+    if (value === undefined) return ''
     return `${key}=${value}`
   }).join('\n')
 }
@@ -23,7 +24,7 @@ ${
 }
 ${
   service.environment.map(entry => {
-    return `Environment= ${entry.key}=${entry.value}`
+    return `Environment=${entry.key}=${entry.value}`
   }).join('\n')
 }
 ${

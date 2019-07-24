@@ -39,7 +39,7 @@ export default class CreateCommand extends Command {
       char: 'e'
     }),
     'env-file': flags.string({
-      description: 'Specially a file from which environment will be loaded from'
+      description: 'Specify a file from which environment will be loaded from'
     })
   }
 
