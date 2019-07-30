@@ -29,7 +29,7 @@ export type PM2Configuration = {
 }
 
 export const convertPM2ToService = (conf: PM2Configuration): ServiceCreateOptions => {
-  const mode = conf.exec_mode.includes('cluster') ? ServiceMode.CLUSTER : ServiceMode.EXEC
+  const mode = (conf.exec_mode || 'fork').includes('cluster') ? ServiceMode.CLUSTER : ServiceMode.EXEC
   let args: string[] = conf.args instanceof Array ? conf.args : []
   if (typeof conf.args === 'string') {
     args = args.concat(conf.args.split(' '))
@@ -41,7 +41,6 @@ export const convertPM2ToService = (conf: PM2Configuration): ServiceCreateOption
     return { key, value: JSON.stringify(process.env[key] || '') }
   })
   const env: EnvironmentEntry[] = currentEnv.concat(injectedEnv)
-  const asPermissionSet = conf.uid !== undefined && conf.gid !== undefined
   const standardOutPath = conf.disable_logs === true ?
     '/dev/null' : (conf.out || conf.out_file || conf.output)
   const standardErrPath = conf.disable_logs === true ?
@@ -54,7 +53,7 @@ export const convertPM2ToService = (conf: PM2Configuration): ServiceCreateOption
     count: conf.instances || 1,
     arguments: args,
     environment: env,
-    permissionMode: asPermissionSet ? {
+    permissionMode: conf.uid !== undefined && conf.gid !== undefined ? {
       uid: conf.uid,
       gid: conf.gid
     } : ServiceCreatePermissionMode.USER,
