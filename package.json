@@ -1,6 +1,6 @@
 {
   "name": "servicectl",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Servicectl is a opinionated process manager that aim to simplify native init systems for developers.",
   "main": "index.js",
   "license": "MIT",
