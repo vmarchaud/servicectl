@@ -165,6 +165,9 @@ export class SimpleSystemdService implements Service {
     const creator = await getCreatorForMode(this.mode)
     await creator.disable(this, this.manager)
     await creator.removeFiles(this)
+    if (this.state === 'failed') {
+      this.manager.ResetFailed()
+    }
   }
 
   async getProperty (name: string) {
