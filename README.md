@@ -32,30 +32,30 @@ sudo servicectl delete myapp
 ```
 
 
-#### Why Yet Another Process Manager ?
+#### Why Yet Another Process Manager?
 
-I believe most process manager implementations focus on delivering a good experience for developers by re-implementing a daemon and a cli from scratch (ex: pm2, forever, nodemon, supervisor).
+I believe most process manager implementations focus on delivering a good experience for developers by re-implementing a daemon and a CLI from scratch (ex: pm2, forever, nodemon, supervisor).
 
 While it help for developers to run their apps, they generally are reinventing the wheel because popular OS already have a process manager builtin: [systemd](https://www.freedesktop.org/wiki/Software/systemd/) for most linux distributions, [launchd](https://www.launchd.info/) for macOS and [Service Control Manager](https://docs.microsoft.com/fr-fr/windows/win32/services/service-control-manager) for Windows.
 
 In theory it should not be a problem but in practive you will often find bugs that doesn't exist in native init systems because they are generally older, well tested and handle a larger scope of use-case.
 
-Anoter argument would be that using the native init system cost less in terms of resources, embed environment like rasberry-pi like system are an example where it could help a lot.
+Anoter argument would be that using the native init system cost less in terms of resources, embed environment like raspberry-pi like system are an example where it could help a lot.
 
-#### Why not use the native init system of my OS then ?
+#### Why not use the native init system of my OS then?
 
-You are right, in a perfect world this tool would be *almost* useless because everyone would be leveraging their already-present init systems. However the existence of simpler process manager means (in my opignon at least) that some people find them too difficult to use or configure.
+You are right, in a perfect world this tool would be *almost* useless because everyone would be leveraging their already-present init systems. However the existence of simpler process manager means (in my opinion at least) that some people find them too difficult to use or configure.
 
 Servicectl aim to help those people, people who aren't system administrator but still need to deploy their applications in production.
-However it can also help sysadmin since you can use native cli (`systemctl` on linux for exemple) after starting the app with `servicectl`.
+However it can also help sysadmin since you can use native CLI (`systemctl` on linux for exemple) after starting the app with `servicectl`.
 
-#### If i use containers i don't see the point of using your tool !
+#### If I use containers I don't see the point of using your tool!
 
-That's because there are no point (*expect some rare cases (ex: coreos)*) of using init systems if you use containers, you should have a scheduler like `kubernetes`, `nomad` or `rancher` (etc.) to manage them. I have no plans to allow to manage them via `servicectl`.
+That's because there are no point (*expect some rare cases (ex: coreos)*) of using init systems if you use containers. You should have a scheduler like `kubernetes`, `nomad` or `rancher` (etc.) to manage them. I have no plans to allow to manage them via `servicectl`.
 
 #### What servicectl is not:
 
-- A development process manager: i don't plan to support a `watch` mode for example or any feature that is not used in production.
+- A development process manager: I don't plan to support a `watch` mode for example or any feature that is not used in production.
 - A way to manage containers: as said above, you should be using more mature tools to do that.
 
 ## Features
@@ -102,7 +102,7 @@ The name also contains the number of the instance for a given app (in the format
 
 ### Cluster mode
 
-If you used pm2 before, there is a mode called `cluster` which allows to automatically load balance requests to multiple instances of your app. You can do that with `servicectl` too:
+If you used PM2 before, there is a mode called `cluster` which allows to automatically load balance requests to multiple instances of your app. You can do that with `servicectl` too:
 
 ```bash
 # you need to specify the port that the application listen on
@@ -110,7 +110,7 @@ If you used pm2 before, there is a mode called `cluster` which allows to automat
 servicectl create app.js --instances 2 --port 3000
 ```
 
-Like pm2, the cluster mode is **supported out of the box using NodeJS**. However you can use it anything, please read how to setup socket-enabled systemd service with your language (its easy as listening on a specific file descriptor):
+Like PM2, the cluster mode is **supported out of the box using Node.js**. However you can use it anything, please read how to setup socket-enabled systemd service with your language (it's easy as listening on a specific file descriptor):
 - Go: https://github.com/coreos/go-systemd/blob/master/examples/activation/httpserver/httpserver.go
 - Python: https://github.com/liutec/python-systemd-socket-activated/blob/master/server.py#L13
 - Rails: https://www.stderr.nl/Blog/Software/Rails/RailsSocketActivation.html
@@ -153,7 +153,7 @@ sudo servicectl delete <name> | all
 ## API
 
 `servicectl` defines a common service definition as well as common init system API ([here](https://github.com/vmarchaud/servicectl/tree/master/src/types)) and implements them for each backend ([here](https://github.com/vmarchaud/servicectl/tree/master/src/backends/)).
-You could totally use it as an API, i would advise to check how the cli commands are interacting with it [here](https://github.com/vmarchaud/servicectl/tree/master/src/cli/)
+You could totally use it as an API, I would advise to check how the CLI commands are interacting with it [here](https://github.com/vmarchaud/servicectl/tree/master/src/cli/)
 
 Note that the initial version of `servicectl` only includes support for `systemd`, if you need to use it on another init system please open an issue if your use-case.
 
