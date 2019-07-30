@@ -5,7 +5,7 @@ Servicectl is a optionated process manager that aim to simplify native init syst
 
 Currently it only support **linux** distribution with `systemd`, if you really need it to support **windows** or **macos** please open an issue. 
 
-Quick tutorial:
+### Getting started
 
 ```bash
 # Install the CLI first
@@ -32,7 +32,7 @@ sudo servicectl delete myapp
 ```
 
 
-#### Why Yet Another Process Manager?
+## Why Yet Another Process Manager?
 
 I believe most process manager implementations focus on delivering a good experience for developers by re-implementing a daemon and a CLI from scratch (ex: pm2, forever, nodemon, supervisor).
 
