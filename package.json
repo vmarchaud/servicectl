@@ -1,18 +1,22 @@
 {
   "name": "servicectl",
   "version": "0.0.1",
-  "description": "better pm2",
+  "description": "Servicectl is a opinionated process manager that aim to simplify native init systems for developers.",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
     "@oclif/command": "^1.5.13",
     "@oclif/config": "^1.12.12",
+    "@oclif/plugin-autocomplete": "^0.1.2",
     "@oclif/plugin-help": "^2.1.6",
+    "@oclif/plugin-not-found": "^1.2.2",
+    "@oclif/plugin-warn-if-update-available": "^1.7.0",
     "async": "^3.0.1",
     "await-of": "^1.2.0",
     "cli-ux": "^5.3.0",
     "dbus-next": "^0.5.1",
-    "luxon": "^1.16.0"
+    "luxon": "^1.16.0",
+    "v8-compile-cache": "^2.0.3"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.22.0",
@@ -34,13 +38,35 @@
     "commands": "./build/cli",
     "bin": "servicectl",
     "plugins": [
-      "@oclif/plugin-help"
+      "@oclif/plugin-help",
+      "@oclif/plugin-autocomplete",
+      "@oclif/plugin-not-found",
+      "@oclif/plugin-warn-if-update-available"
     ]
   },
   "files": [
     "/bin",
     "/build",
     "/oclif.manifest.json"
+  ],
+  "keywords": [
+    "cli",
+    "sysadmin",
+    "tools",
+    "logs",
+    "reload",
+    "production",
+    "pm2",
+    "nodemon",
+    "forever",
+    "supervisor",
+    "process manager",
+    "cluster",
+    "devops",
+    "systemd",
+    "launchd",
+    "service",
+    "systemctl"
   ],
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
