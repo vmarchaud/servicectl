@@ -32,6 +32,7 @@ export default class ListCommand extends Command {
     },
     uptime: {
       get: (service: Service) => {
+        if (service.state === 'failed') return '-'
         return DateTime
           .fromMillis(service.timestamps.startedAt)
           .toRelative({ style : 'short' })
@@ -54,7 +55,8 @@ export default class ListCommand extends Command {
     return {
       cpu: (cpuUsage / msElapsed).toFixed(0),
       // convert it to MB
-      memory: (Number(usage.memory) / 1024).toFixed(2)
+      memory: usage.memory === 18014398509481983n
+        ? '0' : (Number(usage.memory) / 1024).toFixed(2)
     }
   }
 

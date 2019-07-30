@@ -23,8 +23,16 @@ export default class DeleteCommand extends Command {
     if (process.getuid() !== 0) {
       throw new Error(`You must use sudo with servicectl for it to work properly.`)
     }
-    await api.delete(args.name)
-    console.log(`Succesfully removed service: ${args.name}`)
+    if (args.name === 'all') {
+      const services = await api.list()
+      await Promise.all(services.map(service => service.delete()))
+      services.forEach(service => {
+        console.log(`Succesfully removed service: ${service.name}`)
+      })
+    } else {
+      await api.delete(args.name)
+      console.log(`Succesfully removed service: ${args.name}`)
+    }
     await api.destroy()
   }
 }

@@ -42,7 +42,6 @@ export default class CreateCommand extends Command {
         const services: Service[] = []
         await Promise.all(configs.map(async conf => {
           const translatedConf = convertPM2ToService(conf)
-          console.log(translatedConf)
           try {
             const tmpServices = await api.create(translatedConf)
             tmpServices.forEach(service => services.push(service))
