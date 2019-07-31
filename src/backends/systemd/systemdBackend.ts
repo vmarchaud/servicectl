@@ -74,7 +74,9 @@ export class SystemdBackend implements ServiceBackend {
   }
 
   async stop (name: string): Promise<Service[]> {
-    throw new Error('Method not implemented.')
+    const services = await this.get(name)
+    await Promise.all(services.map(service => service.stop()))
+    return services
   }
 
   async list (): Promise<Service[]> {

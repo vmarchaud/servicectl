@@ -1,6 +1,6 @@
 import { ServiceBackend, ServiceCreateOptions, RetrieveLogsOptions } from './types/serviceBackend'
 import { platform } from 'os'
-import { SystemdBackend } from './models/systemd/systemdBackend'
+import { SystemdBackend } from './backends/systemd/systemdBackend'
 import { Service, ServiceLogs } from './types/service'
 
 export class ServiceAPI {
@@ -34,6 +34,11 @@ export class ServiceAPI {
 
   async restart (name: string) {
     const services = await this.backend.restart(name)
+    return services
+  }
+
+  async stop (name: string) {
+    const services = await this.backend.stop(name)
     return services
   }
 
