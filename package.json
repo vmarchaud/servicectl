@@ -71,7 +71,8 @@
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "tslint -p test -t stylish",
-    "prepack": "rm -rf build && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "copy": "mkdir build/backends/systemd/creators/cluster && cp src/backends/systemd/creators/cluster/node-handle-socket.js build/backends/systemd/creators/cluster/node-handle-socket.js",
+    "prepack": "rm -rf build && tsc -b && oclif-dev manifest && oclif-dev readme && yarn copy",
     "test": "mocha -r ts-node/register --forbid-only \"test/**/*.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "lint": "tslint --project . src/**/*.ts"
